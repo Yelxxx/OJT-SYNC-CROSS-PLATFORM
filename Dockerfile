@@ -48,4 +48,4 @@ EXPOSE 80
 
 # Run migrations on boot (idempotent), then start Apache.
 # To seed demo data once, temporarily append "&& php artisan db:seed --force".
-CMD ["sh", "-c", "php artisan migrate --force --no-interaction && php artisan db:seed --force && apache2-foreground"]
+CMD ["sh", "-c", "chmod -R 775 bootstrap/cache storage && chown -R www-data:www-data bootstrap/cache storage && php artisan migrate --force --no-interaction && php artisan db:seed --force && apache2-foreground"]
