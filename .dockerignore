@@ -1,0 +1,10 @@
+.env
+.env.*
+.git
+node_modules
+vendor
+public/hot
+public/storage
+tests
+Dockerfile
+.dockerignore

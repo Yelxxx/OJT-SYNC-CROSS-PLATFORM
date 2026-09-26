@@ -1,0 +1,44 @@
+# Render Blueprint for OJT Sync
+# Docs: https://render.com/docs/blueprint-spec
+#
+# Render has no native PHP runtime, so the app runs in Docker:
+#   - runtime: docker builds this repo's Dockerfile (PHP 8.5 + Apache)
+#   - composer install and storage:link happen at image build time
+#   - migrations run on container start (see the Dockerfile CMD)
+#
+# Two ways to deploy:
+#   1. Recommended (dashboard): New -> Web Service -> pick this repo
+#      -> runtime "Docker" (default) -> plan "Free" -> add the env vars below.
+#   2. Blueprint: push this file to GitHub, then in Render choose
+#      New -> Blueprint and select this repo. Fill in the "sync: false"
+#      vars in the dashboard.
+#
+# Full walkthrough: see DEPLOYMENT.md
+
+services:
+  - type: web
+    name: ojt-sync
+    runtime: docker
+    plan: free
+    region: oregon
+    dockerfilePath: ./Dockerfile
+    dockerContext: .
+    healthCheckPath: /login
+    autoDeploy: true
+    envVars:
+      - key: APP_ENV
+        value: production
+      - key: APP_DEBUG
+        value: "false"
+      - key: APP_NAME
+        value: OJT Sync
+      - key: DB_CONNECTION
+        value: pgsql
+      - key: DB_SSLMODE
+        value: require
+      - key: APP_URL
+        sync: false # e.g. https://ojt-sync.onrender.com (set after first deploy)
+      - key: APP_KEY
+        sync: false # base64:... from: php artisan key:generate --show
+      - key: DB_URL
+        sync: false # Neon connection string, e.g. postgresql://user:pass@ep-xxx.aws.neon.tech/neondb?sslmode=require
