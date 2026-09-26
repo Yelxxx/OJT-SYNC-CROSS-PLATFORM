@@ -12,7 +12,7 @@
 FROM php:8.5-apache
 
 # System packages + PHP extensions:
-#   pdo_pgsql -> Neon Postgres (DB_URL)
+#   pdo_pgsql -> Postgres (Supabase via DB_URL)
 #   zip/bcmath -> Composer + defensive defaults for Laravel
 #   unzip     -> Composer dist extraction
 RUN apt-get update \
@@ -46,6 +46,8 @@ RUN sed -ri -e 's!/var/www/html!${APACHE_DOCUMENT_ROOT}!g' /etc/apache2/sites-av
 
 EXPOSE 80
 
-# Run migrations on boot (idempotent), then start Apache.
-# To seed demo data once, temporarily append "&& php artisan db:seed --force".
+# Run migrations on boot (idempotent), then start Apache. The seeder has its
+# own "database not empty" guard, so db:seed is safe to run every boot.
+# (On a persistent database like Supabase, re-seeding fixed demo rows would
+# otherwise violate unique constraints and crash-loop the container.)
 CMD ["sh", "-c", "chmod -R 775 bootstrap/cache storage && chown -R www-data:www-data bootstrap/cache storage && php artisan migrate --force --no-interaction && php artisan db:seed --force && apache2-foreground"]

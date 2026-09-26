@@ -41,4 +41,8 @@ services:
       - key: APP_KEY
         sync: false # base64:... from: php artisan key:generate --show
       - key: DB_URL
-        sync: false # Neon connection string, e.g. postgresql://user:pass@ep-xxx.aws.neon.tech/neondb?sslmode=require
+        sync: false # Supabase "Session pooler" string, e.g.
+        #   postgresql://postgres.REF:PASSWORD@aws-0-REGION.pooler.supabase.com:5432/postgres
+        # IMPORTANT: on Render use the Session pooler, NOT the "Direct connection"
+        # (db.REF.supabase.co) — that host is IPv6-only and Render has no IPv6
+        # outbound, so direct connections fail there. Keep DB_SSLMODE=require.

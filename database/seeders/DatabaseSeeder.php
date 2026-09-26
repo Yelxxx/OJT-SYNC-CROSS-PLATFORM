@@ -14,6 +14,15 @@ class DatabaseSeeder extends Seeder
 {
     public function run(): void
     {
+        // Idempotent guard: demo rows use fixed emails/student numbers, so
+        // seeding a database that already has users would violate unique
+        // constraints. Safe to run on every deploy/boot.
+        if (User::exists()) {
+            $this->command?->info('Database already has data; skipping demo seed.');
+
+            return;
+        }
+
         $password = 'password';
 
         
