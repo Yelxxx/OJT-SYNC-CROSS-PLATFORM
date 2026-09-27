@@ -7,11 +7,18 @@
 
     <div class="py-12">
         <div class="max-w-4xl mx-auto sm:px-6 lg:px-8 space-y-6">
-            <div class="flex items-center justify-between">
+            <div class="flex items-center justify-between gap-4">
                 <p class="text-sm text-gray-600">Document your weekly OJT learnings and reflections.</p>
                 <x-button href="{{ route('student.journals.create') }}">
                     + New Entry
                 </x-button>
+            </div>
+
+            {{-- Pending offline submissions --}}
+            <div x-data x-show="$store.syncStatus.pending > 0" x-cloak
+                class="rounded-md border border-gold-200 bg-gold-50 px-4 py-3 text-sm text-gold-700">
+                <span x-text="$store.syncStatus.pending"></span>
+                submission(s) saved on this device and waiting to sync — they'll appear here once uploaded.
             </div>
 
             @if ($journals->isEmpty())

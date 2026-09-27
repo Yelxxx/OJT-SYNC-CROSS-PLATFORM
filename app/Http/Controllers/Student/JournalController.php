@@ -2,8 +2,10 @@
 
 namespace App\Http\Controllers\Student;
 
+use App\Exceptions\DomainActionException;
 use App\Http\Controllers\Controller;
 use App\Models\EJournal;
+use App\Services\JournalService;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
@@ -11,6 +13,8 @@ use Illuminate\View\View;
 
 class JournalController extends Controller
 {
+    public function __construct(private readonly JournalService $journalService) {}
+
     public function index(): View
     {
         $journals = Auth::user()
@@ -37,9 +41,11 @@ class JournalController extends Controller
             'entry' => ['required', 'string', 'max:5000'],
         ]);
 
-        Auth::user()->studentProfile->eJournals()->create(
-            array_merge($validated, ['submitted_at' => now()])
-        );
+        try {
+            $this->journalService->submit(Auth::user()->studentProfile, $validated);
+        } catch (DomainActionException $e) {
+            abort($e->status, $e->getMessage());
+        }
 
         return redirect()
             ->route('student.journals.index')

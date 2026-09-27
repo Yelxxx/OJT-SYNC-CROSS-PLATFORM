@@ -9,6 +9,7 @@ class EJournal extends Model
 {
     protected $fillable = [
         'student_id',
+        'client_uuid',
         'week',
         'title',
         'entry',

@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\Student;
 
 use App\Http\Controllers\Controller;
+use App\Models\Application;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\View\View;
 
@@ -19,7 +20,7 @@ class DashboardController extends Controller
 
         $statusCounts = $applications->groupBy('status')->map->count();
 
-        $applicationStatusChart = collect(\App\Models\Application::STATUSES)
+        $applicationStatusChart = collect(Application::STATUSES)
             ->map(fn (string $label, string $key) => [
                 'status' => $key,
                 'label' => $label,

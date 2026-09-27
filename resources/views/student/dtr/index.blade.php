@@ -9,41 +9,52 @@
         <div class="max-w-5xl mx-auto sm:px-6 lg:px-8 space-y-6">
             {{-- Clock card --}}
             <x-card>
-                <div class="p-6">
+                <div class="p-6"
+                    x-data="offlineDtr({
+                        taskSummary: '',
+                        checkedIn: @json($activeEntry !== null),
+                        activeTimeIn: @json($activeEntry?->time_in?->toIso8601String()),
+                        totalHours: {{ (float) $totalHours }},
+                        requiredHours: {{ (int) $requiredHours }},
+                    })">
                     <div class="flex flex-col md:flex-row md:items-center md:justify-between gap-6">
                         <div>
                             <p class="text-xs font-semibold uppercase tracking-wider text-gray-400">Total hours logged</p>
-                            <p class="mt-1 text-3xl font-bold text-primary-900">{{ number_format($totalHours, 2) }} hrs</p>
-                            <p class="mt-1 text-sm text-gray-500">
-                                @if ($activeEntry)
-                                    <span class="inline-flex items-center gap-1.5 text-emerald-700">
-                                        <span class="h-2 w-2 rounded-full bg-emerald-500 animate-pulse"></span>
-                                        Clocked in since {{ $activeEntry->time_in->format('g:i A') }}
-                                    </span>
-                                @else
-                                    You are currently timed out.
-                                @endif
+                            <p class="mt-1 text-3xl font-bold text-primary-900">
+                                <span x-text="Number(totalHours).toFixed(2)">{{ number_format($totalHours, 2) }}</span> hrs
                             </p>
+                            <p class="mt-1 text-sm text-gray-500">
+                                <span x-show="checkedIn" x-cloak class="inline-flex items-center gap-1.5 text-emerald-700">
+                                    <span class="h-2 w-2 rounded-full bg-emerald-500 animate-pulse"></span>
+                                    Clocked in since <span x-text="localTime(activeTimeIn)"></span>
+                                </span>
+                                <span x-show="! checkedIn" class="text-gray-500">You are currently timed out.</span>
+                            </p>
+
+                            {{-- Offline / pending notice --}}
+                            <p x-show="notice" x-cloak class="mt-2 text-sm font-medium text-gold-700" x-text="notice"></p>
+                            <p x-show="pendingCount > 0" x-cloak class="mt-1 text-xs text-gold-600"
+                                x-text="pendingCount + ' saved offline — will sync automatically'"></p>
                         </div>
 
                         <div class="shrink-0">
-                            @if ($activeEntry)
-                                <form method="POST" action="{{ route('student.dtr.checkout') }}" class="space-y-3">
-                                    @csrf
-                                    <textarea name="task_summary" rows="2" placeholder="What did you accomplish today? (optional)"
-                                        class="block w-full md:w-80 border-primary-200 focus:border-primary-500 focus:ring-primary-500 rounded-md shadow-sm text-sm"></textarea>
-                                    <x-button variant="gold" type="submit" size="lg" class="w-full">
-                                        Time Out
-                                    </x-button>
-                                </form>
-                            @else
-                                <form method="POST" action="{{ route('student.dtr.checkin') }}">
-                                    @csrf
-                                    <x-button type="submit" size="lg" class="w-full">
-                                        Time In
-                                    </x-button>
-                                </form>
-                            @endif
+                            <div x-show="checkedIn" x-cloak>
+                                <textarea x-model="taskSummary" rows="2" placeholder="What did you accomplish today? (optional)"
+                                    class="block w-full md:w-80 border-primary-200 focus:border-primary-500 focus:ring-primary-500 rounded-md shadow-sm text-sm"></textarea>
+                                <button type="button" @click="checkout(taskSummary)" :disabled="busy"
+                                    class="mt-3 w-full inline-flex justify-center items-center px-4 py-2 bg-gold-400 border border-transparent rounded-md font-semibold text-primary-900 uppercase tracking-wider hover:bg-gold-300 focus:outline-none focus:ring-2 focus:ring-gold-400 focus:ring-offset-2 disabled:opacity-50 text-sm">
+                                    <span x-show="! busy">Time Out</span>
+                                    <span x-show="busy" x-cloak>Working…</span>
+                                </button>
+                            </div>
+
+                            <div x-show="! checkedIn">
+                                <button type="button" @click="checkin()" :disabled="busy"
+                                    class="w-full inline-flex justify-center items-center px-4 py-2 bg-primary-600 border border-transparent rounded-md font-semibold text-white uppercase tracking-wider hover:bg-primary-700 focus:outline-none focus:ring-2 focus:ring-primary-500 focus:ring-offset-2 disabled:opacity-50 text-sm">
+                                    <span x-show="! busy">Time In</span>
+                                    <span x-show="busy" x-cloak>Working…</span>
+                                </button>
+                            </div>
                         </div>
                     </div>
                 </div>

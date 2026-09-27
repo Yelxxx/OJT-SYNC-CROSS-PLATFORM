@@ -1,0 +1,1 @@
+var e=`serviceWorker`in navigator,t=document.querySelector(`meta[name="pwa-enabled"]`)?.content===`true`,n=window.isSecureContext||location.hostname===`localhost`||location.hostname===`127.0.0.1`;e&&t&&n&&window.addEventListener(`load`,()=>{navigator.serviceWorker.register(`/build/sw.js`,{scope:`/`}).catch(e=>{console.warn(`[PWA] service worker registration failed:`,e)})});
