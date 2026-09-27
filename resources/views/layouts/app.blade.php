@@ -45,20 +45,37 @@
             </main>
 
             <!-- Install Prompt -->
-            <div x-data="installPrompt()" x-ref="installPrompt" x-show="showInstallPrompt" @click.away="showInstallPrompt = false"
-                 class="fixed inset-0 z-50 flex items-end justify-center px-4 py-6 sm:px-6 lg:px-8">
-                <div x-show="showInstallPrompt" class="relative w-full max-w-xs">
+            <div x-data="installPrompt()" x-ref="installPrompt" x-show="showInstallPrompt"
+                 x-transition:enter="transition ease-out duration-200"
+                 x-transition:enter-start="opacity-0"
+                 x-transition:enter-end="opacity-100"
+                 x-transition:leave="transition ease-in duration-150"
+                 x-transition:leave-start="opacity-100"
+                 x-transition:leave-end="opacity-0"
+                 class="fixed inset-0 z-50 flex items-center justify-center px-4 py-6 sm:px-6 lg:px-8"
+                 role="dialog" aria-modal="true" aria-labelledby="install-prompt-title">
+                <!-- Blurred backdrop: click it to dismiss -->
+                <div class="absolute inset-0 bg-gray-900/40 backdrop-blur-sm"
+                     @click="showInstallPrompt = false" aria-hidden="true"></div>
+                <div x-show="showInstallPrompt"
+                     x-transition:enter="transition ease-out duration-200"
+                     x-transition:enter-start="opacity-0 sm:scale-95"
+                     x-transition:enter-end="opacity-100 sm:scale-100"
+                     x-transition:leave="transition ease-in duration-150"
+                     x-transition:leave-start="opacity-100 sm:scale-100"
+                     x-transition:leave-end="opacity-0 sm:scale-95"
+                     class="relative w-full max-w-xs">
                     <!-- Install Prompt -->
                     <div class="bg-white shadow-xl ring-1 ring-black ring-opacity-5 overflow-hidden sm:rounded-lg">
                         <div class="bg-white px-4 pt-5 pb-4 sm:p-6 sm:pb-4">
                             <div class="sm:flex sm:items-start">
                                 <div class="mt-3 text-center sm:mt-0 sm:ml-4 sm:text-left">
-                                    <h3 class="text-lg font-medium text-gray-900">
+                                    <h3 id="install-prompt-title" class="text-lg font-medium text-gray-900">
                                         Install OJT Sync
                                     </h3>
                                     <div class="mt-2">
                                         <p class="text-sm text-gray-500">
-                                            Add OJT Sync to your home screen for faster access and offline use.
+                                            Add OJT Sync to your home screen for faster access.
                                         </p>
                                     </div>
                                 </div>
@@ -71,7 +88,7 @@
                                 Install
                             </button>
                             <button type="button"
-                                    @click="showInstallPrompt = false"
+                                    @click="dismissInstallPrompt"
                                     class="mt-3 w-full inline-flex justify-center rounded-md border border-gray-300 px-4 py-2 bg-white text-sm font-medium text-gray-700 hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-gray-500 sm:mt-0 sm:ml-3 sm:w-auto sm:ns">
                                 Not Now
                             </button>
