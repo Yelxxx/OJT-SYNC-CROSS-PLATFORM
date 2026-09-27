@@ -25,3 +25,15 @@ _ide_helper.php
 Homestead.json
 Homestead.yaml
 Thumbs.db
+
+# Non-code artifacts: local docs, notes, logs, generated files
+# (kept on disk locally, but never committed to the repo)
+.env.backup
+/server*.log
+/server*.err
+/server*.out
+/memory
+/scripts
+CROSS_PLATFORM_PLAN.md
+HR_Dashboard_Presentation_Script_KlaireOne.pdf
+*.pdf
