@@ -46,8 +46,10 @@ RUN sed -ri -e 's!/var/www/html!${APACHE_DOCUMENT_ROOT}!g' /etc/apache2/sites-av
 
 EXPOSE 80
 
-# Run migrations on boot (idempotent), then start Apache. The seeder has its
-# own "database not empty" guard, so db:seed is safe to run every boot.
-# (On a persistent database like Supabase, re-seeding fixed demo rows would
-# otherwise violate unique constraints and crash-loop the container.)
-CMD ["sh", "-c", "chmod -R 775 bootstrap/cache storage && chown -R www-data:www-data bootstrap/cache storage && php artisan migrate --force --no-interaction && php artisan db:seed --force && apache2-foreground"]
+# Boot sequence lives in docker/start.sh (kept out-of-line so the CMD stays
+# readable): it fixes permissions, migrates/seeds without letting a DB
+# failure crash-loop the container, binds Apache to Render's $PORT, and
+# exec's Apache in the foreground.
+COPY docker/start.sh /usr/local/bin/start.sh
+RUN chmod +x /usr/local/bin/start.sh
+CMD ["/usr/local/bin/start.sh"]
