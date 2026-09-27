@@ -141,15 +141,3 @@ Route::get('/share/{token}', [ShareController::class, 'company'])
     ->name('share.company');
 
 require __DIR__.'/auth.php';
-/* -------------------------------------------------
-   TEMPORARY SEEDING ROUTE – REMOVE AFTER USE
-   ------------------------------------------------- */
-use Illuminate\Support\Facades\Artisan;
-
-Route::get('/seed-demo', function () {
-    // Run the DatabaseSeeder with --force to ignore the "users already exist" check
-    Artisan::call('db:seed', ['--force' => true]);
-
-    // Return a simple message (you can also return a blank page)
-    return 'Demo accounts seeded. <a href="/login">Go to login</a>';
-});
