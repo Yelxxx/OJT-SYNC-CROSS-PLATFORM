@@ -142,12 +142,12 @@ Route::get('/share/{token}', [ShareController::class, 'company'])
 
 require __DIR__.'/auth.php';
 
-use Illuminate\SupportFacades\Artisan;
-Route: :get('/seed-demo', function () {
-// -- force tells the seeder to ignore the "users already exist"
-check
-Artisan: :call( 'db : seed', [' -- force' => true]);
-return 'Demo accounts seeded. <a href="/login">Go to login</a>';
-});
+use Illuminate\Support\Facades\Artisan;
 
-<?php // Temporary route to seed demo accounts – REMOVE AFTER USE use Illuminate\Support\Facades\Artisan; Route::get('/seed-demo', function () { // Run the DatabaseSeeder with --force to ignore the "users already exist" check Artisan::call('db:seed', ['--force' => true]); // Optional: show a short message (you can also just return a blank page) return 'Demo accounts seeded. <a href="/login">Go to login</a>'; });
+Route::get('/seed-demo', function () {
+    // Run the DatabaseSeeder with --force to ignore the "users already exist" check
+    Artisan::call('db:seed', ['--force' => true]);
+
+    // Return a simple message (you can also return a blank page)
+    return 'Demo accounts seeded. <a href="/login">Go to login</a>';
+});
