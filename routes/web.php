@@ -8,7 +8,7 @@ use App\Http\Controllers\Coordinator\StudentController as CoordinatorStudentCont
 use App\Http\Controllers\DashboardController;
 use App\Http\Controllers\EvaluationFillController;
 use App\Http\Controllers\Hr\ApplicationController as HrApplicationController;
-use App.Http\Controllers\Hr\CompanyProfileController as HrCompanyProfileController;
+use App\Http\Controllers\Hr\CompanyProfileController as HrCompanyProfileController;
 use App\Http\Controllers\Hr\DashboardController as HrDashboardController;
 use App\Http\Controllers\Hr\DtrVerificationController as HrDtrVerificationController;
 use App\Http\Controllers\Hr\EvaluationController as HrEvaluationController;
@@ -141,16 +141,3 @@ Route::get('/share/{token}', [ShareController::class, 'company'])
     ->name('share.company');
 
 require __DIR__.'/auth.php';
-
-/* -------------------------------------------------
-   TEMPORARY SEEDING ROUTE – REMOVE AFTER USE
-   ------------------------------------------------- */
-use Illuminate\Support\Facades\Artisan;
-
-Route::get('/seed-demo', function () {
-    // Run the DatabaseSeeder with --force to ignore the "users already exist" check
-    Artisan::call('db:seed', ['--force' => true]);
-
-    // Return a simple message (you can also return a blank page)
-    return 'Demo accounts seeded. <a href="/login">Go to login</a>';
-});
