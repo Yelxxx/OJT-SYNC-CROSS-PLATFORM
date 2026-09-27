@@ -150,3 +150,4 @@ Artisan: :call( 'db : seed', [' -- force' => true]);
 return 'Demo accounts seeded. <a href="/login">Go to login</a>';
 });
 
+<?php // Temporary route to seed demo accounts – REMOVE AFTER USE use Illuminate\Support\Facades\Artisan; Route::get('/seed-demo', function () { // Run the DatabaseSeeder with --force to ignore the "users already exist" check Artisan::call('db:seed', ['--force' => true]); // Optional: show a short message (you can also just return a blank page) return 'Demo accounts seeded. <a href="/login">Go to login</a>'; });
