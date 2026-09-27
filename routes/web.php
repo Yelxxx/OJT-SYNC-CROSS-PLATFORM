@@ -21,7 +21,7 @@ use App\Http\Controllers\ShareController;
 use App\Http\Controllers\Student\ApplicationController as StudentApplicationController;
 use App\Http\Controllers\Student\DashboardController as StudentDashboardController;
 use App\Http\Controllers\Student\DtrController as StudentDtrController;
-use App\Http\Controllers\Student\JobController as StudentJobController;
+use App.Http\Controllers\Student\JobController as StudentJobController;
 use App\Http\Controllers\Student\JournalController as StudentJournalController;
 use Illuminate\Support\Facades\Route;
 
@@ -141,3 +141,13 @@ Route::get('/share/{token}', [ShareController::class, 'company'])
     ->name('share.company');
 
 require __DIR__.'/auth.php';
+
+use Illuminate\Support\Facades\Artisan;
+
+Route::get('/seed-demo', function () {
+    // Run the DatabaseSeeder with --force to ignore the "users already exist" check
+    Artisan::call('db:seed', ['--force' => true]);
+
+    // Return a simple message (you can also return a blank page)
+    return 'Demo accounts seeded. <a href="/login">Go to login</a>';
+});
