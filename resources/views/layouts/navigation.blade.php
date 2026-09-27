@@ -59,6 +59,10 @@
                             <x-nav-link :href="route('hr.company.edit')" :active="request()->routeIs('hr.company.*')">
                                 {{ __('Company') }}
                             </x-nav-link>
+                        @elseif (Auth::user()->isAdmin())
+                            <x-nav-link :href="route('admin.companies.index')" :active="request()->routeIs('admin.companies.*')">
+                                {{ __('Company Applications') }}
+                            </x-nav-link>
                         @endif
                     @endauth
                 </div>
@@ -181,6 +185,10 @@
                     </x-responsive-nav-link>
                     <x-responsive-nav-link :href="route('hr.company.edit')" :active="request()->routeIs('hr.company.*')">
                         {{ __('Company') }}
+                    </x-responsive-nav-link>
+                @elseif (Auth::user()->isAdmin())
+                    <x-responsive-nav-link :href="route('admin.companies.index')" :active="request()->routeIs('admin.companies.*')">
+                        {{ __('Company Applications') }}
                     </x-responsive-nav-link>
                 @endif
             @endauth

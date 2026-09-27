@@ -1,6 +1,7 @@
 <?php
 
 use App\Http\Controllers\Auth\AuthenticatedSessionController;
+use App\Http\Controllers\Auth\CompanyRegistrationController;
 use App\Http\Controllers\Auth\ConfirmablePasswordController;
 use App\Http\Controllers\Auth\EmailVerificationNotificationController;
 use App\Http\Controllers\Auth\EmailVerificationPromptController;
@@ -16,6 +17,14 @@ Route::middleware('guest')->group(function () {
         ->name('register');
 
     Route::post('register', [RegisteredUserController::class, 'store']);
+
+    // Public partner-application form: companies apply for a CvSU
+    // partnership; accounts stay inactive until an admin approves them.
+    Route::get('register/company', [CompanyRegistrationController::class, 'create'])
+        ->name('company.register');
+
+    Route::post('register/company', [CompanyRegistrationController::class, 'store'])
+        ->name('company.register.store');
 
     Route::get('login', [AuthenticatedSessionController::class, 'create'])
         ->name('login');

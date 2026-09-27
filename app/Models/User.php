@@ -26,10 +26,13 @@ class User extends Authenticatable
 
     public const ROLE_HR = 'hr';
 
+    public const ROLE_ADMIN = 'admin';
+
     public const ROLES = [
         self::ROLE_STUDENT => 'Student',
         self::ROLE_COORDINATOR => 'Coordinator',
         self::ROLE_HR => 'Company HR',
+        self::ROLE_ADMIN => 'Admin',
     ];
 
     /**
@@ -59,6 +62,11 @@ class User extends Authenticatable
     public function isHr(): bool
     {
         return $this->role === self::ROLE_HR;
+    }
+
+    public function isAdmin(): bool
+    {
+        return $this->role === self::ROLE_ADMIN;
     }
 
     public function studentProfile(): HasOne

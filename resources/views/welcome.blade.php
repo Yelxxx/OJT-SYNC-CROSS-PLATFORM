@@ -113,6 +113,9 @@
                         @if (Route::has('register'))
                             <a href="{{ route('register') }}" class="btn btn-outline">Register</a>
                         @endif
+                        @if (Route::has('company.register'))
+                            <a href="{{ route('company.register') }}" class="btn btn-outline">Partner with CvSU — Register your company</a>
+                        @endif
                     @endauth
                 @endif
             </div>

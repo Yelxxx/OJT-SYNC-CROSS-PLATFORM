@@ -5,6 +5,7 @@ use App\Http\Controllers\Coordinator\DtrController as CoordinatorDtrController;
 use App\Http\Controllers\Coordinator\EvaluationController as CoordinatorEvaluationController;
 use App\Http\Controllers\Coordinator\JournalController as CoordinatorJournalController;
 use App\Http\Controllers\Coordinator\StudentController as CoordinatorStudentController;
+use App\Http\Controllers\Admin\CompanyApprovalController;
 use App\Http\Controllers\DashboardController;
 use App\Http\Controllers\EvaluationFillController;
 use App\Http\Controllers\Hr\ApplicationController as HrApplicationController;
@@ -128,6 +129,15 @@ Route::middleware(['auth', 'verified', 'role:hr'])
         Route::get('/evaluations/create', [HrEvaluationController::class, 'create'])->name('evaluations.create');
         Route::post('/evaluations', [HrEvaluationController::class, 'store'])->name('evaluations.store');
         Route::get('/evaluations/{evaluation}', [HrEvaluationController::class, 'show'])->name('evaluations.show');
+    });
+
+Route::middleware(['auth', 'verified', 'role:admin'])
+    ->prefix('admin')
+    ->name('admin.')
+    ->group(function () {
+        Route::get('/companies', [CompanyApprovalController::class, 'index'])->name('companies.index');
+        Route::post('/companies/{company}/approve', [CompanyApprovalController::class, 'approve'])->name('companies.approve');
+        Route::post('/companies/{company}/reject', [CompanyApprovalController::class, 'reject'])->name('companies.reject');
     });
 
 Route::get('/evaluations/{token}', [EvaluationFillController::class, 'show'])

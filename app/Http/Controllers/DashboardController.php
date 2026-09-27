@@ -17,6 +17,7 @@ class DashboardController extends Controller
             User::ROLE_STUDENT => redirect()->route('student.dashboard'),
             User::ROLE_COORDINATOR => redirect()->route('coordinator.dashboard'),
             User::ROLE_HR => redirect()->route('hr.dashboard'),
+            User::ROLE_ADMIN => redirect()->route('admin.companies.index'),
             default => abort(403),
         };
     }

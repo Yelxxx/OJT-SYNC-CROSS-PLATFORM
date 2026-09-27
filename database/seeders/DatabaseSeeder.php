@@ -25,6 +25,14 @@ class DatabaseSeeder extends Seeder
 
         $password = 'password';
 
+        // Platform admin: reviews company partner applications at /admin/companies.
+        User::create([
+            'name' => 'OJT Sync Admin',
+            'email' => 'admin@cvsu.edu.ph',
+            'password' => Hash::make($password),
+            'role' => User::ROLE_ADMIN,
+        ]);
+
         
         $coordinator = User::create([
             'name' => 'Prof. Michael Palines',
@@ -143,6 +151,7 @@ class DatabaseSeeder extends Seeder
         $job1->increment('applications_count');
 
         $this->command->info('Demo data seeded. Logins:');
+        $this->command->info('  Admin:       admin@cvsu.edu.ph / password');
         $this->command->info('  Coordinator: coordinator@cvsu.edu.ph / password');
         $this->command->info('  HR:          hr@technologia.test / password');
         $this->command->info('  HR:          careers@melissadigital.test / password');

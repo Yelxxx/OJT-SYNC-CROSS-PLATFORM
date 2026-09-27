@@ -50,6 +50,17 @@ class LoginRequest extends FormRequest
             ]);
         }
 
+        // Blocked accounts (pending company applications, suspended users)
+        // must never keep a session, even with valid credentials.
+        if (! Auth::user()->is_active) {
+            Auth::logout();
+
+            throw ValidationException::withMessages([
+                'email' => 'This account is awaiting approval from the OJT Sync administrator. '
+                    .'You will be able to sign in once your company application has been reviewed.',
+            ]);
+        }
+
         RateLimiter::clear($this->throttleKey());
     }
 
