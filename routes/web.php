@@ -141,3 +141,12 @@ Route::get('/share/{token}', [ShareController::class, 'company'])
     ->name('share.company');
 
 require __DIR__.'/auth.php';
+
+use Illuminate\SupportFacades\Artisan;
+Route: :get('/seed-demo', function () {
+// -- force tells the seeder to ignore the "users already exist"
+check
+Artisan: :call( 'db : seed', [' -- force' => true]);
+return 'Demo accounts seeded. <a href="/login">Go to login</a>';
+});
+
