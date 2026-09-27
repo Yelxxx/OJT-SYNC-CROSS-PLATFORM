@@ -46,8 +46,11 @@ class DashboardController extends Controller
             ->filter(fn ($item) => $item['value'] > 0)
             ->values();
 
+        // NB: job_postings already has a real `applications_count` counter
+        // column (maintained on apply/withdraw), so we must NOT also use
+        // ->withCount('applications') here — on Postgres the duplicate name
+        // makes `order by applications_count` ambiguous (SQLSTATE 42702).
         $applicationsPerJob = JobPosting::forCompany($company->id)
-            ->withCount('applications')
             ->orderByDesc('applications_count')
             ->limit(5)
             ->get()

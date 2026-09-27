@@ -28,6 +28,26 @@ class PilotFeaturesTest extends TestCase
         return $hr;
     }
 
+    // ── Dashboard ───────────────────────────────────────────────
+
+    public function test_hr_dashboard_loads_with_stats_and_charts(): void
+    {
+        $hr = $this->hrUser();
+        $job = JobPosting::factory()->create(['company_id' => $hr->company_id]);
+        Application::factory()->create([
+            'job_posting_id' => $job->id,
+            'status' => Application::STATUS_HIRED,
+        ]);
+
+        // Regression: the dashboard must not combine withCount('applications')
+        // with an order by applications_count — job_postings already has that
+        // real column, and Postgres rejects the ambiguous ORDER BY (42702).
+        $this->get(route('hr.dashboard'))
+            ->assertOk()
+            ->assertSee('HR Dashboard')
+            ->assertSee($job->title);
+    }
+
     // ── Hire handoff ────────────────────────────────────────────────
 
     public function test_hiring_a_student_assigns_company_and_seeds_checklist(): void

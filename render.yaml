@@ -32,6 +32,12 @@ services:
         value: "false"
       - key: APP_NAME
         value: OJT Sync
+      - key: LOG_CHANNEL
+        value: stack
+      # Stream errors to stderr too — storage/logs/laravel.log stays inside
+      # the container where the Render log viewer can't see it.
+      - key: LOG_STACK
+        value: single,stderr
       - key: DB_CONNECTION
         value: pgsql
       - key: DB_SSLMODE
