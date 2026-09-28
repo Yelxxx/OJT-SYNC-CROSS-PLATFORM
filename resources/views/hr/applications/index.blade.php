@@ -80,7 +80,7 @@
                                         <td class="px-4 py-4">
                                             <x-status-badge :status="$application->status" />
                                             @if ($application->status === \App\Models\Application::STATUS_INTERVIEW && $application->interview_at)
-                                                <p class="mt-1 text-xs font-medium text-primary-700">🗓 {{ $application->interview_at->format('M d, g:i A') }}</p>
+                                                <p class="mt-1 text-xs font-medium text-primary-700 inline-flex items-center gap-1"><x-icon name="calendar" class="h-3.5 w-3.5" /> {{ $application->interview_at->format('M d, g:i A') }}</p>
                                             @endif
                                         </td>
                                         <td class="px-4 py-4">

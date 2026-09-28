@@ -39,8 +39,8 @@
         <h1>{{ $company->name }}</h1>
         <p>Internship (OJT) opportunities</p>
         <div class="meta">
-            @if ($company->address)<span>📍 {{ $company->address }}</span>@endif
-            @if ($company->website)<span>🔗 {{ $company->website }}</span>@endif
+            @if ($company->address)<span class="meta-item"><x-icon name="office-building" style="width:1rem;height:1rem;vertical-align:-0.2rem" /> {{ $company->address }}</span>@endif
+            @if ($company->website)<span class="meta-item"><x-icon name="link" style="width:1rem;height:1rem;vertical-align:-0.2rem" /> {{ $company->website }}</span>@endif
         </div>
     </div>
 

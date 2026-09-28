@@ -30,9 +30,12 @@
                         </div>
 
                         @if ($application->interview_at)
-                            <div class="mt-4 p-3 rounded-lg bg-primary-50 border border-primary-100 text-sm text-primary-900">
-                                🗓 Interview scheduled:
-                                <span class="font-semibold">{{ $application->interview_at->format('M d, Y g:i A') }}</span>
+                            <div class="mt-4 p-3 rounded-lg bg-primary-50 border border-primary-100 text-sm text-primary-900 flex items-center gap-2">
+                                <x-icon name="calendar" class="h-4 w-4 shrink-0 text-primary-600" />
+                                <span>
+                                    Interview scheduled:
+                                    <span class="font-semibold">{{ $application->interview_at->format('M d, Y g:i A') }}</span>
+                                </span>
                             </div>
                         @endif
 
@@ -53,7 +56,8 @@
                                 @if ($application->resume_path)
                                     <a href="{{ route('applications.resume', $application) }}"
                                        class="inline-flex items-center gap-2 text-sm font-medium text-primary-600 hover:underline">
-                                        ⬇ Download resume
+                                        <x-icon name="document-text" class="h-4 w-4" />
+                                        Download resume
                                     </a>
                                 @else
                                     <span class="text-sm text-gray-400">— No resume uploaded —</span>

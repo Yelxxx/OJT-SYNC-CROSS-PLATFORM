@@ -188,7 +188,7 @@ export default (initialState) => ({
             this.diag = 'permission query: denied (no prompt possible)';
             this.result = {
                 type: 'error',
-                message: 'Camera access is blocked in your browser settings. Chrome/Brave: tap the 🔒 (or ⋮) beside the address bar → Permissions → Camera → Allow, then reload this page.',
+                message: 'Camera access is blocked in your browser settings. Tap the lock icon beside the address bar, open Permissions, set Camera to Allow, then reload this page.',
             };
             return;
         }

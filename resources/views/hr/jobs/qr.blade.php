@@ -23,8 +23,9 @@
 
                     <div class="mt-6 flex items-center justify-center gap-3">
                         <button type="button" onclick="window.print()"
-                                class="px-4 py-2 bg-primary-600 border border-transparent rounded-md font-semibold text-xs text-white uppercase tracking-widest hover:bg-primary-700 transition">
-                            🖨 Print / Save as PDF
+                                class="inline-flex items-center gap-1.5 px-4 py-2 bg-primary-600 border border-transparent rounded-md font-semibold text-xs text-white uppercase tracking-widest hover:bg-primary-700 transition">
+                            <x-icon name="printer" class="h-4 w-4" />
+                            Print / Save as PDF
                         </button>
                         <a href="{{ route('hr.jobs.index') }}" class="text-sm text-gray-500 hover:text-gray-700">Back to jobs</a>
                     </div>

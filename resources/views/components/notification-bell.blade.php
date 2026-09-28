@@ -33,7 +33,7 @@
             <p class="px-4 py-2 text-xs font-semibold uppercase tracking-wider text-gray-400">Notifications</p>
 
             @if ($notifications->isEmpty())
-                <p class="px-4 py-3 text-sm text-gray-400">You're all caught up! 🎉</p>
+                <p class="px-4 py-3 text-sm text-gray-400">You're all caught up!</p>
             @else
                 @foreach ($notifications->take(8) as $notification)
                     <a href="{{ route('notifications.read', $notification) }}"

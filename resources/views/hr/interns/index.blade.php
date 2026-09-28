@@ -81,7 +81,7 @@
                                                                     @csrf
                                                                     <button type="submit" class="flex items-start gap-2 text-left text-xs hover:opacity-75 transition">
                                                                         <span class="shrink-0 mt-0.5 inline-flex items-center justify-center h-4 w-4 rounded border {{ $item->is_complete ? 'bg-emerald-500 border-emerald-500 text-white' : 'border-gray-300 bg-white' }}">
-                                                                            @if ($item->is_complete)✓@endif
+                                                                            @if ($item->is_complete)<x-icon name="check-circle" class="h-4 w-4 text-emerald-600" />@endif
                                                                         </span>
                                                                         <span class="{{ $item->is_complete ? 'text-gray-400 line-through' : 'text-gray-700' }}">{{ $item->title }}</span>
                                                                     </button>

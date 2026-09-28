@@ -33,7 +33,7 @@
 
                             {{-- Self-service recovery for the most common case --}}
                             <p x-show="cameraState === 'denied'" class="mt-2 text-xs text-red-700">
-                                Chrome: tap the lock icon (🔒) next to the address bar → Permissions → Camera → Allow, then reload.
+                                Chrome: tap the lock icon next to the address bar, open Permissions, set Camera to Allow, then reload.
                             </p>
                             <button type="button" @click="result = null; start()"
                                 class="mt-2 text-xs font-semibold uppercase tracking-wider text-red-700 hover:underline">

@@ -63,9 +63,9 @@
                                         <td class="px-4 py-4 text-gray-500 max-w-[200px] truncate" title="{{ $entry->task_summary }}">{{ $entry->task_summary ?? '—' }}</td>
                                         <td class="px-4 py-4">
                                             @if ($entry->verification_status === \App\Models\DtrEntry::VERIFICATION_VERIFIED)
-                                                <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-semibold bg-emerald-100 text-emerald-700 ring-1 ring-inset ring-emerald-200">✓ Verified</span>
+                                                <span class="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-xs font-semibold bg-emerald-100 text-emerald-700 ring-1 ring-inset ring-emerald-200"><x-icon name="check-circle" class="h-3.5 w-3.5" /> Verified</span>
                                             @elseif ($entry->verification_status === \App\Models\DtrEntry::VERIFICATION_DISPUTED)
-                                                <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-semibold bg-red-100 text-red-700 ring-1 ring-inset ring-red-200">⚠ Disputed</span>
+                                                <span class="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-xs font-semibold bg-red-100 text-red-700 ring-1 ring-inset ring-red-200"><x-icon name="x-circle" class="h-3.5 w-3.5" /> Disputed</span>
                                             @else
                                                 <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-semibold bg-gold-100 text-gold-800 ring-1 ring-inset ring-gold-300">Unverified</span>
                                             @endif

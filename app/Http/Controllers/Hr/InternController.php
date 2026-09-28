@@ -82,7 +82,7 @@ class InternController extends Controller
         ]);
 
         return back()->with('status', $checklistItem->is_complete
-            ? '✅ "'.$checklistItem->title.'" marked complete.'
+            ? '"'.$checklistItem->title.'" marked complete.'
             : '"'.$checklistItem->title.'" reopened.');
     }
 
