@@ -62,7 +62,7 @@
         <!-- Contact Person -->
         <div class="mt-3">
             <x-input-label for="contact_person" :value="__('Contact Person')" />
-            <x-text-input id="contact_person" class="block mt-1 w-full" type="text" name="contact_person" :value="old('contact_person')" required placeholder="HR personnel's full name" />
+            <x-text-input id="contact_person" class="block mt-1 w-full" type="text" name="contact_person" :value="old('contact_person')" required placeholder="HE personnel's full name" />
             <x-input-error :messages="$errors->get('contact_person')" class="mt-2" />
         </div>
 
