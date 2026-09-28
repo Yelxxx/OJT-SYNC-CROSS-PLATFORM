@@ -88,10 +88,12 @@ Route::middleware(['auth', 'verified', 'role:student'])
         Route::post('/jobs/{job}/apply', [StudentApplicationController::class, 'store'])->name('jobs.apply');
         Route::get('/applications', [StudentApplicationController::class, 'index'])->name('applications.index');
         Route::delete('/applications/{application}', [StudentApplicationController::class, 'destroy'])->name('applications.destroy');
-        Route::get('/dtr', [StudentDtrController::class, 'index'])->name('dtr.index');
-        Route::get('/dtr/scan', [StudentDtrController::class, 'scan'])->name('dtr.scan');
-        Route::post('/dtr/checkin', [StudentDtrController::class, 'checkin'])->name('dtr.checkin');
-        Route::post('/dtr/checkout', [StudentDtrController::class, 'checkout'])->name('dtr.checkout');
+        Route::middleware('hired')->group(function () {
+            Route::get('/dtr', [StudentDtrController::class, 'index'])->name('dtr.index');
+            Route::get('/dtr/scan', [StudentDtrController::class, 'scan'])->name('dtr.scan');
+            Route::post('/dtr/checkin', [StudentDtrController::class, 'checkin'])->name('dtr.checkin');
+            Route::post('/dtr/checkout', [StudentDtrController::class, 'checkout'])->name('dtr.checkout');
+        });
         Route::get('/journals', [StudentJournalController::class, 'index'])->name('journals.index');
         Route::get('/journals/create', [StudentJournalController::class, 'create'])->name('journals.create');
         Route::post('/journals', [StudentJournalController::class, 'store'])->name('journals.store');

@@ -442,6 +442,55 @@ Alpine.data('offlineDtr', (initialState) => ({
 Alpine.data('qrScanner', qrScanner);
 
 /* ------------------------------------------------------------------ */
+/* Live shift clock (student DTR page)                                 */
+/*                                                                     */
+/* Drives the analog clock's second/minute/hour hands and the digital  */
+/* elapsed readout from the active entry's time_in, ticking every      */
+/* second so the user can see the shift is actually being counted.     */
+/* ------------------------------------------------------------------ */
+
+Alpine.data('liveClock', ({ startedAt }) => ({
+    seconds: 0,
+    timer: null,
+
+    init() {
+        this.tick();
+        this.timer = setInterval(() => this.tick(), 1000);
+        this.$cleanup?.(() => clearInterval(this.timer));
+    },
+
+    tick() {
+        const start = new Date(startedAt ?? '').getTime();
+
+        if (! Number.isFinite(start)) {
+            return;
+        }
+
+        this.seconds = Math.max(0, Math.floor((Date.now() - start) / 1000));
+    },
+
+    get secondDeg() {
+        return (this.seconds % 60) * 6;
+    },
+
+    get minuteDeg() {
+        return ((this.seconds / 60) % 60) * 6;
+    },
+
+    get hourDeg() {
+        return ((this.seconds / 3600) % 12) * 30;
+    },
+
+    get elapsedLabel() {
+        const h = Math.floor(this.seconds / 3600);
+        const m = Math.floor((this.seconds % 3600) / 60);
+        const s = this.seconds % 60;
+
+        return `${h}h ${String(m).padStart(2, '0')}m ${String(s).padStart(2, '0')}s`;
+    },
+}));
+
+/* ------------------------------------------------------------------ */
 /* Journal draft autosave (student journal create page)                */
 /* ------------------------------------------------------------------ */
 

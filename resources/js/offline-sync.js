@@ -222,6 +222,12 @@ async function replayOne(item) {
         payload = null;
     }
 
+    // not_hired (403): the queued write can never succeed — drop it quietly;
+    // the DTR pages themselves redirect the student to their applications.
+    if (payload?.error === 'not_hired') {
+        return { permanent: true, status: 403, error: 'not_hired' };
+    }
+
     return { permanent: true, status: response.status, error: payload?.error ?? 'rejected' };
 }
 

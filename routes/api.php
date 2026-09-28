@@ -3,6 +3,7 @@
 use App\Http\Controllers\Api\DtrSyncController;
 use App\Http\Controllers\Api\JournalSyncController;
 use App\Http\Controllers\Api\ScanCheckinController;
+use App\Http\Middleware\EnsureHired;
 use Illuminate\Support\Facades\Route;
 
 /*
@@ -21,10 +22,15 @@ use Illuminate\Support\Facades\Route;
 */
 
 Route::middleware(['auth', 'verified', 'role:student'])->prefix('student')->group(function () {
-    Route::get('/dtr/state', [DtrSyncController::class, 'state'])->name('api.student.dtr.state');
-    Route::post('/dtr/checkin', [DtrSyncController::class, 'checkin'])->name('api.student.dtr.checkin');
-    Route::post('/dtr/checkout', [DtrSyncController::class, 'checkout'])->name('api.student.dtr.checkout');
     Route::post('/journals', [JournalSyncController::class, 'store'])->name('api.student.journals.store');
+
+    // DTR is a hired-student feature: unhired students get the JSON
+    // not_hired payload (403) instead of the service's no_company error.
+    Route::middleware(EnsureHired::class)->group(function () {
+        Route::get('/dtr/state', [DtrSyncController::class, 'state'])->name('api.student.dtr.state');
+        Route::post('/dtr/checkin', [DtrSyncController::class, 'checkin'])->name('api.student.dtr.checkin');
+        Route::post('/dtr/checkout', [DtrSyncController::class, 'checkout'])->name('api.student.dtr.checkout');
+    });
 });
 
 /*
@@ -32,6 +38,6 @@ Route::middleware(['auth', 'verified', 'role:student'])->prefix('student')->grou
 | page submits the decoded rotating token. Scan check-ins are inherently
 | online — the token must be fresh — so there is no offline queue here.
 */
-Route::middleware(['auth', 'verified', 'role:student'])
+Route::middleware(['auth', 'verified', 'role:student', EnsureHired::class])
     ->post('/dtr/scan-checkin', [ScanCheckinController::class, 'store'])
     ->name('api.dtr.scan-checkin');

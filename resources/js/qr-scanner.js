@@ -81,6 +81,7 @@ export default (initialState) => ({
     submitTimer: null,
     lastPayload: null,
     lastPayloadAt: 0,
+    photoBusy: false, // decoding a captured photo
     redirectUrl: initialState?.redirectUrl ?? '/student/dtr',
     submitUrl: initialState?.submitUrl ?? '/api/dtr/scan-checkin',
     ...initialState,
@@ -271,6 +272,56 @@ export default (initialState) => ({
                 return 'This device\u2019s camera does not support the requested mode. Please use manual Time In.';
             default:
                 return 'No usable camera found. Please use manual Time In instead.';
+        }
+    },
+
+    /**
+     * Photo fallback: the hidden file input opens the phone's NATIVE camera
+     * app (capture="environment"), which needs no website camera permission —
+     * this is the path that works when getUserMedia is blocked at the OS or
+     * browser-settings level. The captured JPEG is decoded locally with the
+     * bundled zxing wasm and the payload goes through the same submit().
+     */
+    async handleCapturedPhoto(event) {
+        const file = event.target?.files?.[0];
+
+        // Reset so picking the same file again still fires change.
+        event.target.value = '';
+
+        if (! file || this.photoBusy) {
+            return;
+        }
+
+        this.photoBusy = true;
+        this.result = null;
+        this.diag = null;
+
+        try {
+            const readBarcodes = await loadWasmReader();
+            const results = await readBarcodes(file, READER_OPTIONS);
+            const payload = results?.[0]?.text ?? null;
+
+            if (! payload) {
+                this.result = {
+                    type: 'error',
+                    message: 'No QR code found in that photo. Fill the frame with the QR and try again.',
+                };
+            } else if (! this.isCheckinPayload(payload)) {
+                this.result = {
+                    type: 'error',
+                    message: 'That QR code is not an OJT Sync check-in code.',
+                };
+            } else {
+                await this.submit(payload);
+            }
+        } catch (error) {
+            this.setDiag(error);
+            this.result = {
+                type: 'error',
+                message: 'Could not read that photo. Take it in good light, holding the phone steady.',
+            };
+        } finally {
+            this.photoBusy = false;
         }
     },
 

@@ -31,6 +31,44 @@
                                 <span x-show="! checkedIn" class="text-gray-500">You are currently timed out.</span>
                             </p>
 
+                            {{-- Live analog clock while timed in: the moving second,
+                            minute, and hour hands prove the shift is being counted. --}}
+                            <div x-show="checkedIn" x-cloak x-data="liveClock({ startedAt: activeTimeIn })"
+                                 class="mt-4 flex items-center gap-4">
+                                <svg viewBox="0 0 120 120" class="h-28 w-28 shrink-0" aria-hidden="true">
+                                    <circle cx="60" cy="60" r="56" class="fill-white stroke-primary-200" stroke-width="3" />
+
+                                    @foreach (range(0, 11) as $tick)
+                                        @php
+                                            $angle = deg2rad($tick * 30);
+                                            $outerX = 60 + 50 * sin($angle);
+                                            $outerY = 60 - 50 * cos($angle);
+                                            $innerX = 60 + 45 * sin($angle);
+                                            $innerY = 60 - 45 * cos($angle);
+                                        @endphp
+                                        <line x1="{{ $innerX }}" y1="{{ $innerY }}" x2="{{ $outerX }}" y2="{{ $outerY }}"
+                                              class="stroke-primary-200" stroke-width="2" stroke-linecap="round" />
+                                    @endforeach
+
+                                    <g :transform="`rotate(${hourDeg} 60 60)`">
+                                        <line x1="60" y1="60" x2="60" y2="40" class="stroke-primary-900" stroke-width="4.5" stroke-linecap="round" />
+                                    </g>
+                                    <g :transform="`rotate(${minuteDeg} 60 60)`">
+                                        <line x1="60" y1="60" x2="60" y2="32" class="stroke-primary-600" stroke-width="3" stroke-linecap="round" />
+                                    </g>
+                                    <g :transform="`rotate(${secondDeg} 60 60)`">
+                                        <line x1="60" y1="66" x2="60" y2="27" class="stroke-gold-500" stroke-width="1.5" stroke-linecap="round" />
+                                    </g>
+                                    <circle cx="60" cy="60" r="2.5" class="fill-primary-900" />
+                                </svg>
+
+                                <div>
+                                    <p class="text-xs font-semibold uppercase tracking-wider text-gray-400">Current shift</p>
+                                    <p class="text-2xl font-bold text-primary-900 tabular-nums" x-text="elapsedLabel">0h 00m 00s</p>
+                                    <p class="text-xs text-gray-400">Clock hands move in real time — hours bank when you time out.</p>
+                                </div>
+                            </div>
+
                             {{-- Offline / pending notice --}}
                             <p x-show="notice" x-cloak class="mt-2 text-sm font-medium text-gold-700" x-text="notice"></p>
                             <p x-show="pendingCount > 0" x-cloak class="mt-1 text-xs text-gold-600"

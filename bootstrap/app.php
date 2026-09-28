@@ -1,5 +1,6 @@
 <?php
 
+use App\Http\Middleware\EnsureHired;
 use App\Http\Middleware\EnsureRole;
 use Illuminate\Foundation\Application;
 use Illuminate\Foundation\Configuration\Exceptions;
@@ -25,6 +26,7 @@ return Application::configure(basePath: dirname(__DIR__))
 
         $middleware->alias([
             'role' => EnsureRole::class,
+            'hired' => EnsureHired::class,
         ]);
 
         // Offline sync endpoints (routes/api.php) must accept posts from both

@@ -24,9 +24,11 @@
                             <x-nav-link :href="route('student.applications.index')" :active="request()->routeIs('student.applications.*')">
                                 {{ __('My Applications') }}
                             </x-nav-link>
-                            <x-nav-link :href="route('student.dtr.index')" :active="request()->routeIs('student.dtr.*')">
-                                {{ __('DTR') }}
-                            </x-nav-link>
+                            @if (Auth::user()->studentProfile?->company_id !== null)
+                                <x-nav-link :href="route('student.dtr.index')" :active="request()->routeIs('student.dtr.*')">
+                                    {{ __('DTR') }}
+                                </x-nav-link>
+                            @endif
                             <x-nav-link :href="route('student.journals.index')" :active="request()->routeIs('student.journals.*')">
                                 {{ __('E-Journals') }}
                             </x-nav-link>
@@ -151,9 +153,11 @@
                     <x-responsive-nav-link :href="route('student.applications.index')" :active="request()->routeIs('student.applications.*')">
                         {{ __('My Applications') }}
                     </x-responsive-nav-link>
-                    <x-responsive-nav-link :href="route('student.dtr.index')" :active="request()->routeIs('student.dtr.*')">
-                        {{ __('DTR') }}
-                    </x-responsive-nav-link>
+                    @if (Auth::user()->studentProfile?->company_id !== null)
+                        <x-responsive-nav-link :href="route('student.dtr.index')" :active="request()->routeIs('student.dtr.*')">
+                            {{ __('DTR') }}
+                        </x-responsive-nav-link>
+                    @endif
                     <x-responsive-nav-link :href="route('student.journals.index')" :active="request()->routeIs('student.journals.*')">
                         {{ __('E-Journals') }}
                     </x-responsive-nav-link>

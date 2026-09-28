@@ -75,15 +75,22 @@ class DtrSyncTest extends TestCase
             ->assertJsonPath('idempotent', true);
     }
 
-    public function test_checkin_without_company_maps_to_403_error_payload(): void
+    public function test_checkin_without_company_maps_to_not_hired_payload(): void
     {
+        // DTR is gated behind being hired: unhired students get the
+        // middleware's not_hired payload (the offline queue drops it
+        // quietly) rather than the service's no_company error.
         $student = Student::factory()->create(['company_id' => null]);
         $this->actingAs($student->user);
 
         $this->postJson('/api/student/dtr/checkin', ['client_uuid' => $this->uuid()])
             ->assertStatus(403)
-            ->assertJsonPath('error', 'no_company')
+            ->assertJsonPath('error', 'not_hired')
             ->assertJsonPath('idempotent', false);
+
+        $this->getJson('/api/student/dtr/state')
+            ->assertStatus(403)
+            ->assertJsonPath('error', 'not_hired');
     }
 
     public function test_checkout_records_offline_device_timestamp(): void

@@ -29,6 +29,21 @@ class DtrTest extends TestCase
         $this->get(route('student.dtr.index'))->assertOk();
     }
 
+    public function test_unhired_student_is_redirected_from_dtr_page_with_explanation(): void
+    {
+        // DTR only makes sense once a company hired the student; the page
+        // sends them to their applications with a friendly notice instead.
+        $student = Student::factory()->create(['company_id' => null]);
+        $this->actingAs($student->user);
+
+        $this->get(route('student.dtr.index'))
+            ->assertRedirect(route('student.applications.index'))
+            ->assertSessionHas('error', 'You can record time in / out once a company has hired you.');
+
+        $this->get(route('student.dtr.scan'))
+            ->assertRedirect(route('student.applications.index'));
+    }
+
     public function test_student_cannot_check_in_without_assigned_company(): void
     {
         $student = Student::factory()->create(['company_id' => null]);

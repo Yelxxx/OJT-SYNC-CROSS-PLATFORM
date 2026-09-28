@@ -109,10 +109,21 @@
                     <p class="text-xs text-gray-400 text-center font-mono break-all"
                         x-show="diag" x-cloak x-text="diag"></p>
 
-                    {{-- Graceful fallback: manual check-in still works --}}
-                    <div class="pt-2 border-t border-gray-100 text-center">
-                        <a href="{{ route('student.dtr.index') }}" class="text-sm font-medium text-gray-500 hover:text-primary-700">
-                            Camera not working? Time in manually →
+                    {{-- Photo fallback: opens the phone's NATIVE camera app
+                    (no website permission needed) and decodes the picture
+                    in-browser — the path that works when getUserMedia is
+                    blocked at any level. --}}
+                    <div class="pt-2 border-t border-gray-100 space-y-2 text-center">
+                        <label
+                            class="inline-flex w-full items-center justify-center gap-2 px-4 py-2.5 border border-primary-300 rounded-md font-semibold text-primary-700 uppercase tracking-wider text-sm hover:bg-primary-50 cursor-pointer"
+                            :class="photoBusy && 'opacity-50 pointer-events-none'">
+                            <input type="file" accept="image/*" capture="environment" class="hidden"
+                                   @change="handleCapturedPhoto($event)">
+                            <span x-text="photoBusy ? 'Reading photo…' : 'Take a photo of the QR instead'"></span>
+                        </label>
+                        <p class="text-xs text-gray-400">Works even when the in-page camera is blocked — it uses your phone's own camera app.</p>
+                        <a href="{{ route('student.dtr.index') }}" class="block text-sm font-medium text-gray-500 hover:text-primary-700">
+                            Time in manually →
                         </a>
                     </div>
                 </div>
