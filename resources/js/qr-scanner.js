@@ -127,6 +127,28 @@ export default (initialState) => ({
         }
     },
 
+    /**
+     * Distinguish "this page was never granted" (browser will prompt) from
+     * "camera is hard-blocked at OS/browser settings level" (prompt never
+     * appears — the report from the field: Chrome AND Brave, no prompt, no
+     * camera). Chrome denies without prompting when the permission is
+     * already 'denied'; asking first lets us show the right recovery hint
+     * instead of a generic failure.
+     */
+    async checkCameraPermission() {
+        if (! navigator.permissions?.query) {
+            return 'unknown';
+        }
+
+        try {
+            const status = await navigator.permissions.query({ name: 'camera' });
+
+            return status.state; // 'granted' | 'denied' | 'prompt'
+        } catch (error) {
+            return 'unknown'; // some browsers don't expose the camera permission name
+        }
+    },
+
     async startCamera() {
         if (this.cameraState === 'running' || this.cameraState === 'starting') {
             return;
@@ -158,6 +180,18 @@ export default (initialState) => ({
         }
 
         let lastError = null;
+
+        const permission = await this.checkCameraPermission();
+
+        if (permission === 'denied') {
+            this.cameraState = 'denied';
+            this.diag = 'permission query: denied (no prompt possible)';
+            this.result = {
+                type: 'error',
+                message: 'Camera access is blocked in your browser settings. Chrome/Brave: tap the 🔒 (or ⋮) beside the address bar → Permissions → Camera → Allow, then reload this page.',
+            };
+            return;
+        }
 
         for (const constraints of CAMERA_ATTEMPTS) {
             try {

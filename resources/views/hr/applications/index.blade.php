@@ -77,16 +77,39 @@
                                             @endif
                                         </td>
                                         <td class="px-4 py-4 text-gray-500">{{ $application->applied_at?->format('M d, Y') }}</td>
-                                        <td class="px-4 py-4"><x-status-badge :status="$application->status" /></td>
                                         <td class="px-4 py-4">
-                                            <form method="POST" action="{{ route('hr.applications.update', $application) }}" class="flex items-center gap-2">
+                                            <x-status-badge :status="$application->status" />
+                                            @if ($application->status === \App\Models\Application::STATUS_INTERVIEW && $application->interview_at)
+                                                <p class="mt-1 text-xs font-medium text-primary-700">🗓 {{ $application->interview_at->format('M d, g:i A') }}</p>
+                                            @endif
+                                        </td>
+                                        <td class="px-4 py-4">
+                                            {{-- Quick status update. Moving to interview requires
+                                            a date and to rejected a reason (server-side
+                                            required_if) — the extra inputs appear inline and
+                                            disabled inputs are never submitted. --}}
+                                            <form method="POST" action="{{ route('hr.applications.update', $application) }}"
+                                                  x-data="{ status: '{{ $application->status }}' }" class="space-y-2">
                                                 @csrf
                                                 @method('PATCH')
-                                                <select name="status" class="border-primary-200 focus:border-primary-500 focus:ring-primary-500 rounded-md shadow-sm text-xs">
+                                                <select name="status" x-model="status" class="border-primary-200 focus:border-primary-500 focus:ring-primary-500 rounded-md shadow-sm text-xs">
                                                     @foreach (\App\Models\Application::STATUSES as $value => $label)
                                                         <option value="{{ $value }}" @selected($application->status === $value)>{{ $label }}</option>
                                                     @endforeach
                                                 </select>
+
+                                                <div x-show="status === 'interview'" x-cloak>
+                                                    <input type="datetime-local" name="interview_at" x-bind:disabled="status !== 'interview'"
+                                                           value="{{ old('interview_at', $application->interview_at?->format('Y-m-d\\TH:i')) }}"
+                                                           class="border-primary-200 focus:border-primary-500 focus:ring-primary-500 rounded-md shadow-sm text-xs w-44">
+                                                </div>
+
+                                                <div x-show="status === 'rejected'" x-cloak>
+                                                    <input type="text" name="rejection_reason" x-bind:disabled="status !== 'rejected'"
+                                                           placeholder="Reason (shared with student)"
+                                                           class="border-primary-200 focus:border-primary-500 focus:ring-primary-500 rounded-md shadow-sm text-xs w-44">
+                                                </div>
+
                                                 <button type="submit" class="inline-flex items-center px-3 py-1.5 text-xs font-medium text-white bg-primary-600 rounded-md hover:bg-primary-700 transition">
                                                     Save
                                                 </button>

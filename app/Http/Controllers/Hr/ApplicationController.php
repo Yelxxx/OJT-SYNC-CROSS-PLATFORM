@@ -114,7 +114,8 @@ class ApplicationController extends Controller
         });
 
         $message = match ($validated['status']) {
-            Application::STATUS_INTERVIEW => 'Application moved to interview.',
+            Application::STATUS_INTERVIEW => 'Interview scheduled for '
+                .$application->refresh()->interview_at->format('D, M d, Y g:i A').'. The student has been notified.',
             Application::STATUS_HIRED => 'Student marked as hired!',
             Application::STATUS_REJECTED => 'Application rejected.',
             default => 'Application status updated.',

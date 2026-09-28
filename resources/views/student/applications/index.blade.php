@@ -27,6 +27,14 @@
                                         <p class="font-semibold text-gray-900">{{ $application->jobPosting->title }}</p>
                                         <p class="text-sm text-gray-500">{{ $application->jobPosting->company->name }}</p>
                                         <p class="mt-1 text-xs text-gray-400">Applied {{ $application->applied_at?->format('M d, Y g:i A') }}</p>
+                                        @if ($application->status === \App\Models\Application::STATUS_INTERVIEW && $application->interview_at)
+                                            <p class="mt-2 text-sm font-medium text-primary-800">
+                                                🗓 Interview scheduled: {{ $application->interview_at->isoFormat('ddd, MMM D, YYYY [at] g:i A') }}
+                                            </p>
+                                        @endif
+                                        @if ($application->status === \App\Models\Application::STATUS_REJECTED && $application->rejection_reason)
+                                            <p class="mt-2 text-xs text-gray-500">Reason: {{ $application->rejection_reason }}</p>
+                                        @endif
                                         @if ($application->resume_path)
                                             <p class="mt-1 text-xs text-gray-500">
                                                 📎 <a href="{{ asset('storage/'.$application->resume_path) }}" target="_blank" class="text-primary-600 hover:underline">View resume</a>

@@ -59,6 +59,44 @@ class ApplicationWorkflowTest extends TestCase
         $this->assertNotNull($application->interview_at);
     }
 
+    public function test_quick_update_from_index_schedules_interview_with_date(): void
+    {
+        // Regression: the applications LIST page previously posted status
+        // without an interview_at field, so choosing "For Interview" there
+        // failed validation with no visible error.
+        $hr = $this->hrUser();
+        $application = $this->applicationFor($hr);
+
+        $this->from(route('hr.applications.index'))
+            ->patch(route('hr.applications.update', $application), [
+                'status' => Application::STATUS_INTERVIEW,
+                'interview_at' => now()->addDays(2)->format('Y-m-d\TH:i'),
+            ])
+            ->assertRedirect(route('hr.applications.index'))
+            ->assertSessionHasNoErrors();
+
+        $application->refresh();
+
+        $this->assertSame(Application::STATUS_INTERVIEW, $application->status);
+        $this->assertNotNull($application->interview_at);
+    }
+
+    public function test_student_sees_the_scheduled_interview_date(): void
+    {
+        $hr = $this->hrUser();
+        $application = $this->applicationFor($hr);
+
+        $interviewAt = now()->addDays(2)->startOfHour();
+
+        $application->update(['status' => Application::STATUS_INTERVIEW, 'interview_at' => $interviewAt]);
+
+        $this->actingAs($application->student->user)
+            ->get(route('student.applications.index'))
+            ->assertOk()
+            ->assertSee('Interview scheduled')
+            ->assertSee($interviewAt->isoFormat('ddd, MMM D, YYYY'));
+    }
+
     public function test_rejecting_requires_a_reason_and_notifies_the_student(): void
     {
         $hr = $this->hrUser();
