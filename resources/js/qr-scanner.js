@@ -43,6 +43,7 @@ export default (initialState) => ({
     cameraState: 'idle', // idle | starting | running | denied | unavailable
     processing: false,
     result: null, // { type: 'success' | 'notice' | 'error', message }
+    diag: null, // low-level error detail (shown when APP_DEBUG)
     stream: null,
     detector: null,
     useNativeDetector: false,
@@ -71,18 +72,39 @@ export default (initialState) => ({
     },
 
     async start() {
+        try {
+            await this.startCamera();
+        } catch (error) {
+            // Never fail silently: any unexpected error (Oddly-shaped
+            // Android builds, weird browsers) becomes a visible banner.
+            this.cameraState = 'unavailable';
+            this.diag = `${error?.name ?? 'Error'}: ${error?.message ?? error}`;
+            this.result = {
+                type: 'error',
+                message: 'The camera could not be started on this device. Please use manual Time In instead.',
+            };
+        }
+    },
+
+    async startCamera() {
         if (this.cameraState === 'running' || this.cameraState === 'starting') {
             return;
         }
 
         this.cameraState = 'starting';
         this.result = null;
+        this.diag = null;
 
-        if (! navigator.mediaDevices?.getUserMedia) {
+        // getUserMedia only exists in secure contexts (https:// or localhost).
+        // On http:// LAN testing (e.g. http://192.168.x.x:8000) the browser
+        // removes the API entirely — say so instead of "camera not found".
+        if (! window.isSecureContext || ! navigator.mediaDevices?.getUserMedia) {
             this.cameraState = 'unavailable';
             this.result = {
                 type: 'error',
-                message: 'Camera is not available on this device. Please use manual Time In instead.',
+                message: window.isSecureContext
+                    ? 'Camera is not available on this device. Please use manual Time In instead.'
+                    : 'Camera needs a secure connection (https://). Open the app over https — or use manual Time In.',
             };
             return;
         }
@@ -94,6 +116,7 @@ export default (initialState) => ({
             });
         } catch (error) {
             this.cameraState = error?.name === 'NotAllowedError' ? 'denied' : 'unavailable';
+            this.diag = `${error?.name ?? 'Error'}: ${error?.message ?? error}`;
             this.result = {
                 type: 'error',
                 message: this.cameraState === 'denied'
@@ -106,10 +129,23 @@ export default (initialState) => ({
         const video = this.$refs.video;
         video.srcObject = this.stream;
 
+        // Wait until frames actually flow before declaring success: on some
+        // Android builds play() resolves while the preview is still black.
+        await new Promise((resolve) => {
+            if (video.readyState >= 2) {
+                resolve();
+                return;
+            }
+
+            video.addEventListener('loadeddata', () => resolve(), { once: true });
+            setTimeout(resolve, 3000); // don't hang the "starting" state forever
+        });
+
         try {
             await video.play();
         } catch (error) {
-            // Autoplay edge case; the stream is still attached.
+            // The stream is attached; most builds still render frames.
+            this.diag = `play() blocked: ${error?.name ?? ''} ${error?.message ?? ''}`;
         }
 
         this.cameraState = 'running';
@@ -252,12 +288,16 @@ export default (initialState) => ({
     },
 
     get statusLabel() {
-        return {
+        const labels = {
             idle: 'Point your camera at the QR code shown at your company.',
             starting: 'Starting camera…',
-            running: 'Looking for the check-in QR…',
+            running: this.useNativeDetector
+                ? 'Looking for the check-in QR…'
+                : 'Looking for the check-in QR… (using the fallback scanner)',
             denied: 'Camera access denied.',
             unavailable: 'Camera unavailable.',
-        }[this.cameraState] ?? '';
+        };
+
+        return labels[this.cameraState] ?? '';
     },
 });
