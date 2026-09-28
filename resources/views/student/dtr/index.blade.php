@@ -9,94 +9,92 @@
         <div class="max-w-5xl mx-auto sm:px-6 lg:px-8 space-y-6">
             {{-- Clock card --}}
             <x-card>
-                <div class="p-6"
-                    x-data="offlineDtr({
-                        taskSummary: '',
-                        checkedIn: @json($activeEntry !== null),
-                        activeTimeIn: @json($activeEntry?->time_in?->toIso8601String()),
-                        totalHours: {{ (float) $totalHours }},
-                        requiredHours: {{ (int) $requiredHours }},
-                    })">
+                <div class="p-6">
                     <div class="flex flex-col md:flex-row md:items-center md:justify-between gap-6">
                         <div>
                             <p class="text-xs font-semibold uppercase tracking-wider text-gray-400">Total hours logged</p>
                             <p class="mt-1 text-3xl font-bold text-primary-900">
-                                <span x-text="Number(totalHours).toFixed(2)">{{ number_format($totalHours, 2) }}</span> hrs
+                                {{ number_format($totalHours, 2) }} hrs
                             </p>
                             <p class="mt-1 text-sm text-gray-500">
-                                <span x-show="checkedIn" x-cloak class="inline-flex items-center gap-1.5 text-emerald-700">
-                                    <span class="h-2 w-2 rounded-full bg-emerald-500 animate-pulse"></span>
-                                    Clocked in since <span x-text="localTime(activeTimeIn)"></span>
-                                </span>
-                                <span x-show="! checkedIn" class="text-gray-500">You are currently timed out.</span>
+                                @if ($activeEntry)
+                                    <span class="inline-flex items-center gap-1.5 text-emerald-700">
+                                        <span class="h-2 w-2 rounded-full bg-emerald-500 animate-pulse"></span>
+                                        Clocked in since {{ $activeEntry->time_in->format('g:i A') }}
+                                    </span>
+                                @else
+                                    <span class="text-gray-500">You are currently timed out.</span>
+                                @endif
                             </p>
 
                             {{-- Live analog clock while timed in: the moving second,
-                            minute, and hour hands prove the shift is being counted. --}}
-                            <div x-show="checkedIn" x-cloak x-data="liveClock({ startedAt: activeTimeIn })"
-                                 class="mt-4 flex items-center gap-4">
-                                <svg viewBox="0 0 120 120" class="h-28 w-28 shrink-0" aria-hidden="true">
-                                    <circle cx="60" cy="60" r="56" class="fill-white stroke-primary-200" stroke-width="3" />
+                            minute, and hour hands prove the shift is being counted.
+                            The page reloaded on time in, so startedAt is server truth. --}}
+                            @if ($activeEntry)
+                                <div x-data="liveClock({ startedAt: @js($activeEntry->time_in->toIso8601String()) })"
+                                     class="mt-4 flex items-center gap-4">
+                                    <svg viewBox="0 0 120 120" class="h-28 w-28 shrink-0" aria-hidden="true">
+                                        <circle cx="60" cy="60" r="56" class="fill-white stroke-primary-200" stroke-width="3" />
 
-                                    @foreach (range(0, 11) as $tick)
-                                        @php
-                                            $angle = deg2rad($tick * 30);
-                                            $outerX = 60 + 50 * sin($angle);
-                                            $outerY = 60 - 50 * cos($angle);
-                                            $innerX = 60 + 45 * sin($angle);
-                                            $innerY = 60 - 45 * cos($angle);
-                                        @endphp
-                                        <line x1="{{ $innerX }}" y1="{{ $innerY }}" x2="{{ $outerX }}" y2="{{ $outerY }}"
-                                              class="stroke-primary-200" stroke-width="2" stroke-linecap="round" />
-                                    @endforeach
+                                        @foreach (range(0, 11) as $tick)
+                                            @php
+                                                $angle = deg2rad($tick * 30);
+                                                $outerX = 60 + 50 * sin($angle);
+                                                $outerY = 60 - 50 * cos($angle);
+                                                $innerX = 60 + 45 * sin($angle);
+                                                $innerY = 60 - 45 * cos($angle);
+                                            @endphp
+                                            <line x1="{{ $innerX }}" y1="{{ $innerY }}" x2="{{ $outerX }}" y2="{{ $outerY }}"
+                                                  class="stroke-primary-200" stroke-width="2" stroke-linecap="round" />
+                                        @endforeach
 
-                                    <g :transform="`rotate(${hourDeg} 60 60)`">
-                                        <line x1="60" y1="60" x2="60" y2="40" class="stroke-primary-900" stroke-width="4.5" stroke-linecap="round" />
-                                    </g>
-                                    <g :transform="`rotate(${minuteDeg} 60 60)`">
-                                        <line x1="60" y1="60" x2="60" y2="32" class="stroke-primary-600" stroke-width="3" stroke-linecap="round" />
-                                    </g>
-                                    <g :transform="`rotate(${secondDeg} 60 60)`">
-                                        <line x1="60" y1="66" x2="60" y2="27" class="stroke-gold-500" stroke-width="1.5" stroke-linecap="round" />
-                                    </g>
-                                    <circle cx="60" cy="60" r="2.5" class="fill-primary-900" />
-                                </svg>
+                                        <g :transform="`rotate(${hourDeg} 60 60)`">
+                                            <line x1="60" y1="60" x2="60" y2="40" class="stroke-primary-900" stroke-width="4.5" stroke-linecap="round" />
+                                        </g>
+                                        <g :transform="`rotate(${minuteDeg} 60 60)`">
+                                            <line x1="60" y1="60" x2="60" y2="32" class="stroke-primary-600" stroke-width="3" stroke-linecap="round" />
+                                        </g>
+                                        <g :transform="`rotate(${secondDeg} 60 60)`">
+                                            <line x1="60" y1="66" x2="60" y2="27" class="stroke-gold-500" stroke-width="1.5" stroke-linecap="round" />
+                                        </g>
+                                        <circle cx="60" cy="60" r="2.5" class="fill-primary-900" />
+                                    </svg>
 
-                                <div>
-                                    <p class="text-xs font-semibold uppercase tracking-wider text-gray-400">Current shift</p>
-                                    <p class="text-2xl font-bold text-primary-900 tabular-nums" x-text="elapsedLabel">0h 00m 00s</p>
-                                    <p class="text-xs text-gray-400">Clock hands move in real time — hours bank when you time out.</p>
+                                    <div>
+                                        <p class="text-xs font-semibold uppercase tracking-wider text-gray-400">Current shift</p>
+                                        <p class="text-2xl font-bold text-primary-900 tabular-nums" x-text="elapsedLabel">0h 00m 00s</p>
+                                        <p class="text-xs text-gray-400">Clock hands move in real time — hours bank when you time out.</p>
+                                    </div>
                                 </div>
-                            </div>
-
-                            {{-- Offline / pending notice --}}
-                            <p x-show="notice" x-cloak class="mt-2 text-sm font-medium text-gold-700" x-text="notice"></p>
-                            <p x-show="pendingCount > 0" x-cloak class="mt-1 text-xs text-gold-600"
-                                x-text="pendingCount + ' saved offline — will sync automatically'"></p>
+                            @endif
                         </div>
 
                         <div class="shrink-0">
-                            <div x-show="checkedIn" x-cloak>
-                                <textarea x-model="taskSummary" rows="2" placeholder="What did you accomplish today? (optional)"
-                                    class="block w-full md:w-80 border-primary-200 focus:border-primary-500 focus:ring-primary-500 rounded-md shadow-sm text-sm"></textarea>
-                                <button type="button" @click="checkout(taskSummary)" :disabled="busy"
-                                    class="mt-3 w-full inline-flex justify-center items-center px-4 py-2 bg-gold-400 border border-transparent rounded-md font-semibold text-primary-900 uppercase tracking-wider hover:bg-gold-300 focus:outline-none focus:ring-2 focus:ring-gold-400 focus:ring-offset-2 disabled:opacity-50 text-sm">
-                                    <span x-show="! busy">Time Out</span>
-                                    <span x-show="busy" x-cloak>Working…</span>
-                                </button>
-                            </div>
-
-                            <div x-show="! checkedIn">
-                                <button type="button" @click="checkin()" :disabled="busy"
-                                    class="w-full inline-flex justify-center items-center px-4 py-2 bg-primary-600 border border-transparent rounded-md font-semibold text-white uppercase tracking-wider hover:bg-primary-700 focus:outline-none focus:ring-2 focus:ring-primary-500 focus:ring-offset-2 disabled:opacity-50 text-sm">
-                                    <span x-show="! busy">Time In</span>
-                                    <span x-show="busy" x-cloak>Working…</span>
-                                </button>
-                                <a href="{{ route('student.dtr.scan') }}"
-                                    class="mt-2 w-full inline-flex justify-center items-center gap-1.5 px-4 py-2 border border-primary-200 rounded-md font-semibold text-primary-700 uppercase tracking-wider hover:bg-primary-50 focus:outline-none focus:ring-2 focus:ring-primary-500 focus:ring-offset-2 text-sm">
-                                    <x-icon name="search" class="h-4 w-4" /> Time In via QR
-                                </a>
-                            </div>
+                            @if ($activeEntry)
+                                <form method="POST" action="{{ route('student.dtr.checkout') }}">
+                                    @csrf
+                                    <textarea name="task_summary" rows="2" placeholder="What did you accomplish today? (optional)"
+                                        class="block w-full md:w-80 border-primary-200 focus:border-primary-500 focus:ring-primary-500 rounded-md shadow-sm text-sm"></textarea>
+                                    <button type="submit"
+                                        class="mt-3 w-full inline-flex justify-center items-center px-4 py-2 bg-gold-400 border border-transparent rounded-md font-semibold text-primary-900 uppercase tracking-wider hover:bg-gold-300 focus:outline-none focus:ring-2 focus:ring-gold-400 focus:ring-offset-2 text-sm">
+                                        Time Out
+                                    </button>
+                                </form>
+                            @else
+                                <div>
+                                    <form method="POST" action="{{ route('student.dtr.checkin') }}">
+                                        @csrf
+                                        <button type="submit"
+                                            class="w-full inline-flex justify-center items-center px-4 py-2 bg-primary-600 border border-transparent rounded-md font-semibold text-white uppercase tracking-wider hover:bg-primary-700 focus:outline-none focus:ring-2 focus:ring-primary-500 focus:ring-offset-2 text-sm">
+                                            Time In
+                                        </button>
+                                    </form>
+                                    <a href="{{ route('student.dtr.scan') }}"
+                                        class="mt-2 w-full inline-flex justify-center items-center gap-1.5 px-4 py-2 border border-primary-200 rounded-md font-semibold text-primary-700 uppercase tracking-wider hover:bg-primary-50 focus:outline-none focus:ring-2 focus:ring-primary-500 focus:ring-offset-2 text-sm">
+                                        <x-icon name="search" class="h-4 w-4" /> Time In via QR
+                                    </a>
+                                </div>
+                            @endif
                         </div>
                     </div>
                 </div>
@@ -117,8 +115,8 @@
                                         <th class="px-4 py-3">Date</th>
                                         <th class="px-4 py-3">Time In</th>
                                         <th class="px-4 py-3">Time Out</th>
-                                    <th class="px-4 py-3">Hours</th>
-                                    <th class="px-4 py-3">Task Summary</th>
+                                        <th class="px-4 py-3">Hours</th>
+                                        <th class="px-4 py-3">Task Summary</th>
                                     </tr>
                                 </thead>
                                 <tbody class="divide-y divide-gray-100">

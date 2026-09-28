@@ -68,25 +68,9 @@
                         @endif
                     @endauth
                 </div>
-            </div>
-
-            <!-- Settings Dropdown -->
-            <div class="hidden sm:flex sm:items-center sm:ms-6">
-                @auth
-                    <!-- Offline sync status chip -->
-                    <button type="button" @click="$store.syncStatus.retry()"
-                        x-data x-show="$store.syncStatus.pending > 0 || $store.syncStatus.justSynced" x-cloak
-                        class="hidden sm:inline-flex items-center gap-1.5 me-3 px-2.5 py-1 rounded-full text-xs font-semibold border transition"
-                        :class="$store.syncStatus.pending > 0 ? 'bg-gold-50 border-gold-300 text-gold-700' : 'bg-primary-50 border-primary-300 text-primary-700'">
-                        <span class="h-2 w-2 rounded-full"
-                            :class="$store.syncStatus.syncing ? 'bg-gold-400 animate-pulse' : ($store.syncStatus.pending > 0 ? 'bg-gold-400' : 'bg-primary-400')"></span>
-                        <span x-show="$store.syncStatus.syncing">Syncing…</span>
-                        <span x-show="! $store.syncStatus.syncing && $store.syncStatus.pending > 0" x-text="$store.syncStatus.pending + ' waiting to sync'"></span>
-                        <span x-show="! $store.syncStatus.syncing && $store.syncStatus.pending === 0">Synced</span>
-                    </button>
-                @endauth
-
-                <div class="hidden sm:flex items-center me-3">
+            </div>                <!-- Settings Dropdown -->
+                <div class="hidden sm:flex sm:items-center sm:ms-6">
+                    <div class="hidden sm:flex items-center me-3">
                     <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-semibold bg-gold-400 text-primary-900">
                         {{ \App\Models\User::ROLES[Auth::user()->role] }}
                     </span>
@@ -206,16 +190,6 @@
                     <span class="inline-flex items-center px-2 py-0.5 rounded-full text-[10px] font-semibold bg-gold-400 text-primary-900">
                         {{ \App\Models\User::ROLES[Auth::user()->role] }}
                     </span>
-                    @auth
-                        <button type="button" @click="$store.syncStatus.retry()"
-                            x-data x-show="$store.syncStatus.pending > 0 || $store.syncStatus.justSynced" x-cloak
-                            class="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[10px] font-semibold border"
-                            :class="$store.syncStatus.pending > 0 ? 'bg-gold-50 border-gold-300 text-gold-700' : 'bg-primary-50 border-primary-300 text-primary-700'">
-                            <span x-show="$store.syncStatus.syncing">Syncing…</span>
-                            <span x-show="! $store.syncStatus.syncing && $store.syncStatus.pending > 0" x-text="$store.syncStatus.pending + ' to sync'"></span>
-                            <span x-show="! $store.syncStatus.syncing && $store.syncStatus.pending === 0">Synced</span>
-                        </button>
-                    @endauth
                 </div>
                 <div class="font-medium text-sm text-primary-200">{{ Auth::user()->email }}</div>
                 <div class="mt-2 text-primary-100">

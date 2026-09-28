@@ -9,7 +9,6 @@ class DtrEntry extends Model
 {
     protected $fillable = [
         'student_id',
-        'client_uuid',
         'date',
         'time_in',
         'time_out',

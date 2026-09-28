@@ -29,13 +29,11 @@ return Application::configure(basePath: dirname(__DIR__))
             'hired' => EnsureHired::class,
         ]);
 
-        // Offline sync endpoints (routes/api.php) must accept posts from both
-        // the page and the service worker's Background Sync replay, which has
-        // no access to the CSRF token. This is safe because the session cookie
-        // is SameSite=lax (cross-site form posts never carry it), every
-        // replayed write carries a server-recorded idempotency UUID, and the
-        // endpoints are JSON-only and session-authenticated.
-        $middleware->validateCsrfTokens(except: ['api/*']);
+        // CSRF is validated everywhere. The API surface is down to the QR
+        // scan check-in (routes/api.php), which is a same-origin fetch from
+        // the scanner page and sends the X-CSRF-TOKEN header like any form.
+        // (The offline sync queue that motivated the old api/* exemption has
+        // been removed.)
     })
     ->withExceptions(function (Exceptions $exceptions): void {
         $exceptions->shouldRenderJsonWhen(

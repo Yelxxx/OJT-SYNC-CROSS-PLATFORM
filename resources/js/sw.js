@@ -5,6 +5,10 @@
  * the precached welcome page, which would otherwise mask logged-out and
  * session-expired states. Authenticated pages go to the network so Laravel
  * redirects to /login when the session expired.
+ *
+ * NOTE: offline *writes* were removed (the IndexedDB sync queue) — all DTR
+ * and journal actions are plain online form submissions now. This worker
+ * only caches static assets and the fallback page.
  */
 import { clientsClaim } from 'workbox-core';
 import { registerRoute } from 'workbox-routing';
@@ -12,7 +16,6 @@ import { PrecacheController } from 'workbox-precaching';
 import { NetworkFirst, StaleWhileRevalidate, CacheFirst } from 'workbox-strategies';
 import { CacheableResponsePlugin } from 'workbox-cacheable-response';
 import { ExpirationPlugin } from 'workbox-expiration';
-import { replayQueue } from './offline-sync.js';
 
 const PRECACHE_URL = '/build/offline.html';
 
@@ -121,24 +124,8 @@ self.addEventListener('fetch', (event) => {
     }
 });
 
-// Background Sync: Chrome fires this when connectivity returns, even if the
-// app was closed after the write was queued.
-self.addEventListener('sync', (event) => {
-    if (event.tag === 'ojt-offline-sync') {
-        event.waitUntil(replayQueue());
-    }
-});
-
 self.addEventListener('message', (event) => {
-    if (! event.data) {
-        return;
-    }
-
-    if (event.data.type === 'REPLAY_QUEUE') {
-        event.waitUntil(replayQueue());
-    }
-
-    if (event.data.type === 'SKIP_WAITING') {
+    if (event.data?.type === 'SKIP_WAITING') {
         self.skipWaiting();
     }
 });

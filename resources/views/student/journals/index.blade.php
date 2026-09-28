@@ -14,13 +14,6 @@
                 </x-button>
             </div>
 
-            {{-- Pending offline submissions --}}
-            <div x-data x-show="$store.syncStatus.pending > 0" x-cloak
-                class="rounded-md border border-gold-200 bg-gold-50 px-4 py-3 text-sm text-gold-700">
-                <span x-text="$store.syncStatus.pending"></span>
-                submission(s) saved on this device and waiting to sync — they'll appear here once uploaded.
-            </div>
-
             @if ($journals->isEmpty())
                 <x-card>
                     <x-empty-state icon="document-add" title="No journal entries yet" message="Document your weekly OJT learnings and reflections. Write your first entry!" />
