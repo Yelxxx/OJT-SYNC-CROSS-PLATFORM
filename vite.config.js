@@ -1,9 +1,38 @@
 import { defineConfig } from 'vite';
 import laravel from 'laravel-vite-plugin';
 import { VitePWA } from 'vite-plugin-pwa';
+import fs from 'node:fs';
+import path from 'node:path';
+
+/**
+ * Copies the zxing-wasm binary into public/ after each build so the QR
+ * scanner's fallback decoder is served from our own origin instead of a
+ * public CDN at scan time (CROSS_PLATFORM_PLAN.md, Phase 3). Only fetched
+ * by browsers without the native BarcodeDetector API. The wasm is committed
+ * with public/ (like public/build) because Render has no Node build env.
+ */
+function copyZxingWasm() {
+    return {
+        name: 'copy-zxing-wasm',
+        closeBundle() {
+            const src = path.join('node_modules', 'zxing-wasm', 'dist', 'reader', 'zxing_reader.wasm');
+            const destDir = path.join('public', 'vendor', 'zxing-wasm');
+            const dest = path.join(destDir, 'zxing_reader.wasm');
+
+            if (! fs.existsSync(src)) {
+                this.warn('copy-zxing-wasm: node_modules/zxing-wasm not found — run npm install.');
+                return;
+            }
+
+            fs.mkdirSync(destDir, { recursive: true });
+            fs.copyFileSync(src, dest);
+        },
+    };
+}
 
 export default defineConfig({
     plugins: [
+        copyZxingWasm(),
         laravel({
             input: [
                 'resources/css/app.css',

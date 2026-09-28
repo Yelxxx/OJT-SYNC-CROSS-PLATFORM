@@ -23,7 +23,7 @@
         <!-- Company Name -->
         <div class="mt-3">
             <x-input-label for="company_name" :value="__('Company Name')" />
-            <x-text-input id="company_name" class="block mt-1 w-full" type="text" name="company_name" :value="old('company_name')" required autofocus placeholder="e.g. Klaire One Corporation" />
+            <x-text-input id="company_name" class="block mt-1 w-full" type="text" name="company_name" :value="old('company_name')" required autofocus placeholder="e.g. Microsoft" />
             <x-input-error :messages="$errors->get('company_name')" class="mt-2" />
         </div>
 

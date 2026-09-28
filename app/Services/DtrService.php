@@ -18,8 +18,10 @@ class DtrService
      * replayed check-in returns the original entry instead of erroring.
      * $timeIn lets an offline replay record when the student actually
      * pressed the button, not when the request finally reached the server.
+     * $checkinMethod overrides the derived manual/sync value — the QR scan
+     * check-in records 'qr' so HR can see the entry was location-proven.
      */
-    public function checkin(Student $student, ?string $clientUuid = null, ?Carbon $timeIn = null): DtrEntry
+    public function checkin(Student $student, ?string $clientUuid = null, ?Carbon $timeIn = null, ?string $checkinMethod = null): DtrEntry
     {
         if (! $student->company_id) {
             throw new DomainActionException('no_company', 'You cannot clock in until a company has been assigned to you.', 403);
@@ -29,7 +31,7 @@ class DtrService
             throw new DomainActionException('inactive', 'Your OJT status must be active to clock in.', 403);
         }
 
-        return DB::transaction(function () use ($student, $clientUuid, $timeIn) {
+        return DB::transaction(function () use ($student, $clientUuid, $timeIn, $checkinMethod) {
             if ($clientUuid !== null) {
                 $existing = $student->dtrEntries()->where('client_uuid', $clientUuid)->first();
 
@@ -55,7 +57,7 @@ class DtrService
                     'date' => $timeIn->toDateString(),
                     'time_in' => $timeIn,
                     'hours' => 0,
-                    'checkin_method' => $clientUuid === null ? 'manual' : 'sync',
+                    'checkin_method' => $checkinMethod ?? ($clientUuid === null ? 'manual' : 'sync'),
                 ]);
             } catch (UniqueConstraintViolationException) {
                 // A concurrent replay of the same client_uuid won the race;

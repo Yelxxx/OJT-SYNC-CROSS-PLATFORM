@@ -54,6 +54,10 @@
                                     <span x-show="! busy">Time In</span>
                                     <span x-show="busy" x-cloak>Working…</span>
                                 </button>
+                                <a href="{{ route('student.dtr.scan') }}"
+                                    class="mt-2 w-full inline-flex justify-center items-center gap-1.5 px-4 py-2 border border-primary-200 rounded-md font-semibold text-primary-700 uppercase tracking-wider hover:bg-primary-50 focus:outline-none focus:ring-2 focus:ring-primary-500 focus:ring-offset-2 text-sm">
+                                    <x-icon name="search" class="h-4 w-4" /> Time In via QR
+                                </a>
                             </div>
                         </div>
                     </div>
@@ -75,8 +79,8 @@
                                         <th class="px-4 py-3">Date</th>
                                         <th class="px-4 py-3">Time In</th>
                                         <th class="px-4 py-3">Time Out</th>
-                                        <th class="px-4 py-3">Hours</th>
-                                        <th class="px-4 py-3">Task Summary</th>
+                                    <th class="px-4 py-3">Hours</th>
+                                    <th class="px-4 py-3">Task Summary</th>
                                     </tr>
                                 </thead>
                                 <tbody class="divide-y divide-gray-100">

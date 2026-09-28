@@ -1,4 +1,5 @@
 import Alpine from 'alpinejs';
+import qrScanner from './qr-scanner.js';
 import {
     clearDraft,
     getDraft,
@@ -437,6 +438,8 @@ Alpine.data('offlineDtr', (initialState) => ({
         });
     },
 }));
+
+Alpine.data('qrScanner', qrScanner);
 
 /* ------------------------------------------------------------------ */
 /* Journal draft autosave (student journal create page)                */

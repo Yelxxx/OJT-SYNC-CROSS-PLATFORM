@@ -2,6 +2,7 @@
 
 use App\Http\Controllers\Api\DtrSyncController;
 use App\Http\Controllers\Api\JournalSyncController;
+use App\Http\Controllers\Api\ScanCheckinController;
 use Illuminate\Support\Facades\Route;
 
 /*
@@ -25,3 +26,12 @@ Route::middleware(['auth', 'verified', 'role:student'])->prefix('student')->grou
     Route::post('/dtr/checkout', [DtrSyncController::class, 'checkout'])->name('api.student.dtr.checkout');
     Route::post('/journals', [JournalSyncController::class, 'store'])->name('api.student.journals.store');
 });
+
+/*
+| QR scan check-in (CROSS_PLATFORM_PLAN.md, Phase 3): the student's scanner
+| page submits the decoded rotating token. Scan check-ins are inherently
+| online — the token must be fresh — so there is no offline queue here.
+*/
+Route::middleware(['auth', 'verified', 'role:student'])
+    ->post('/dtr/scan-checkin', [ScanCheckinController::class, 'store'])
+    ->name('api.dtr.scan-checkin');

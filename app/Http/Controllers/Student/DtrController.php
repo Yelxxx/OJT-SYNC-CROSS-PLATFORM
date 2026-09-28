@@ -34,6 +34,16 @@ class DtrController extends Controller
         ]);
     }
 
+    /**
+     * Camera check-in page (CROSS_PLATFORM_PLAN.md, Phase 3). The actual
+     * check-in POST goes to the JSON endpoint (api.dtr.scan-checkin); this
+     * action only serves the scanner UI.
+     */
+    public function scan(): View
+    {
+        return view('student.dtr.scan');
+    }
+
     public function checkin(Request $request): RedirectResponse
     {
         $student = Auth::user()->studentProfile;
