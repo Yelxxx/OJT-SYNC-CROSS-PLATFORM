@@ -5,6 +5,14 @@
  * falls back to zxing-wasm (~1 MiB, dynamically imported only when needed —
  * browsers with BarcodeDetector never download it).
  *
+ * Camera acquisition is defensive because real-world Android is messy:
+ *  - constraint chain: ideal-facing rear camera first, then ANY camera;
+ *  - NotReadableError (camera held by another app/tab) gets its own message;
+ *  - in-app browsers (Messenger/Instagram/QR-scanner webviews) block camera
+ *    with no prompt — we detect them and offer an escape hatch to Chrome;
+ *  - the raw error name/message is always shown in small text so a failure
+ *    on a user's phone is reportable (production has APP_DEBUG off).
+ *
  * UX contract with the server (routes/api.php):
  *  - 201            → checked in, show success and redirect to the DTR page
  *  - 409 reused     → photographed QR; ask the student to rescan the live QR
@@ -13,11 +21,12 @@
  *    success and go to the DTR page
  *  - 403 wrong_company / no_company / inactive → banner, stay on scanner
  */
+
 // The zxing fallback is loaded lazily (browsers with the native
 // BarcodeDetector never download it). The wasm binary itself is self-hosted
-// (copied to public/vendor/zxing-wasm by scripts/copy-zxing-wasm.sh after
-// each build) instead of pulled from a public CDN at scan time — school and
-// office networks sometimes block CDNs.
+// (copied to public/vendor/zxing-wasm by the vite build) instead of pulled
+// from a public CDN at scan time — school and office networks sometimes
+// block CDNs.
 let wasmReaderPromise = null;
 
 function loadWasmReader() {
@@ -38,12 +47,32 @@ function loadWasmReader() {
 
 const READER_OPTIONS = { formats: ['QRCode'], tryHarder: true };
 
+/**
+ * Camera constraint attempts, most specific first. `ideal` values never
+ * over-constrain; the plain `{video: true}` fallback accepts any camera
+ * (front-facing included) for odd devices that reject facingMode entirely.
+ */
+const CAMERA_ATTEMPTS = [
+    { video: { facingMode: 'environment', width: { ideal: 1280 }, height: { ideal: 720 } }, audio: false },
+    { video: true, audio: false },
+];
+
+function isInAppBrowser() {
+    const ua = navigator.userAgent ?? '';
+
+    // Facebook/Messenger, Instagram, Line, MIUI browser-in-feed, etc.
+    return /\b(FBAN|FBAV|FBSV|Instagram|Line\/|Snapchat|Musical_Ly| Musical|MicroMessenger|Twitter|Reddit)\b/i.test(ua)
+        // Android WebViews that identify as generic but are embedded:
+        || (/Android/.test(ua) && /;\s*wv\)/i.test(ua));
+}
+
 export default (initialState) => ({
-    scanning: false,
     cameraState: 'idle', // idle | starting | running | denied | unavailable
     processing: false,
     result: null, // { type: 'success' | 'notice' | 'error', message }
-    diag: null, // low-level error detail (shown when APP_DEBUG)
+    diag: null, // raw error text — always surfaced, makes phone failures reportable
+    inAppBrowser: false,
+    escapeUrl: null, // intent:// link that opens the same URL in Chrome
     stream: null,
     detector: null,
     useNativeDetector: false,
@@ -67,6 +96,18 @@ export default (initialState) => ({
             }
         }
 
+        if (isInAppBrowser()) {
+            this.inAppBrowser = true;
+
+            // Android intent URL: asks the OS to open this exact page in
+            // Chrome, escaping the webview that blocks the camera.
+            if (/Android/.test(navigator.userAgent)) {
+                const hostAndPath = location.host + location.pathname;
+
+                this.escapeUrl = `intent://${hostAndPath}#Intent;scheme=https;package=com.android.chrome;end`;
+            }
+        }
+
         this.$cleanup?.(() => this.stopCamera());
         window.addEventListener('pagehide', () => this.stopCamera());
     },
@@ -75,10 +116,10 @@ export default (initialState) => ({
         try {
             await this.startCamera();
         } catch (error) {
-            // Never fail silently: any unexpected error (Oddly-shaped
-            // Android builds, weird browsers) becomes a visible banner.
+            // Never fail silently: any unexpected error becomes a visible
+            // banner + the raw detail underneath.
             this.cameraState = 'unavailable';
-            this.diag = `${error?.name ?? 'Error'}: ${error?.message ?? error}`;
+            this.setDiag(error);
             this.result = {
                 type: 'error',
                 message: 'The camera could not be started on this device. Please use manual Time In instead.',
@@ -96,32 +137,52 @@ export default (initialState) => ({
         this.diag = null;
 
         // getUserMedia only exists in secure contexts (https:// or localhost).
-        // On http:// LAN testing (e.g. http://192.168.x.x:8000) the browser
-        // removes the API entirely — say so instead of "camera not found".
+        // On http:// LAN testing the browser removes the API entirely — say
+        // so instead of "camera not found".
         if (! window.isSecureContext || ! navigator.mediaDevices?.getUserMedia) {
             this.cameraState = 'unavailable';
-            this.result = {
-                type: 'error',
-                message: window.isSecureContext
-                    ? 'Camera is not available on this device. Please use manual Time In instead.'
-                    : 'Camera needs a secure connection (https://). Open the app over https — or use manual Time In.',
-            };
+
+            if (! window.isSecureContext) {
+                this.result = {
+                    type: 'error',
+                    message: 'Camera needs a secure connection (https://). Open the app over https — or use manual Time In.',
+                };
+            } else {
+                this.result = {
+                    type: 'error',
+                    message: 'This browser does not expose a camera API. Please use manual Time In instead.',
+                };
+            }
+
             return;
         }
 
-        try {
-            this.stream = await navigator.mediaDevices.getUserMedia({
-                video: { facingMode: 'environment', width: { ideal: 1280 }, height: { ideal: 720 } },
-                audio: false,
-            });
-        } catch (error) {
-            this.cameraState = error?.name === 'NotAllowedError' ? 'denied' : 'unavailable';
-            this.diag = `${error?.name ?? 'Error'}: ${error?.message ?? error}`;
+        let lastError = null;
+
+        for (const constraints of CAMERA_ATTEMPTS) {
+            try {
+                this.stream = await navigator.mediaDevices.getUserMedia(constraints);
+                lastError = null;
+                break;
+            } catch (error) {
+                lastError = error;
+
+                // Permission/security problems never resolve by retrying
+                // with looser constraints — bail immediately.
+                if (error?.name === 'NotAllowedError' || error?.name === 'SecurityError') {
+                    break;
+                }
+            }
+        }
+
+        if (! this.stream) {
+            this.cameraState = lastError?.name === 'NotAllowedError' ? 'denied' : 'unavailable';
+            this.setDiag(lastError);
             this.result = {
                 type: 'error',
                 message: this.cameraState === 'denied'
                     ? 'Camera permission was denied. Enable it in your browser settings, or use manual Time In.'
-                    : 'No usable camera found. Please use manual Time In instead.',
+                    : this.cameraBusyMessage(lastError),
             };
             return;
         }
@@ -131,6 +192,7 @@ export default (initialState) => ({
 
         // Wait until frames actually flow before declaring success: on some
         // Android builds play() resolves while the preview is still black.
+        // The timeout keeps "Starting…" from hanging forever on stragglers.
         await new Promise((resolve) => {
             if (video.readyState >= 2) {
                 resolve();
@@ -138,18 +200,44 @@ export default (initialState) => ({
             }
 
             video.addEventListener('loadeddata', () => resolve(), { once: true });
-            setTimeout(resolve, 3000); // don't hang the "starting" state forever
+            setTimeout(resolve, 3000);
         });
 
         try {
             await video.play();
         } catch (error) {
-            // The stream is attached; most builds still render frames.
+            // The video tag carries autoplay+muted+playsinline, so most
+            // builds start rendering regardless.
             this.diag = `play() blocked: ${error?.name ?? ''} ${error?.message ?? ''}`;
         }
 
         this.cameraState = 'running';
         this.scanLoop();
+    },
+
+    setDiag(error) {
+        const name = error?.name ?? 'UnknownError';
+        const message = error?.message ?? String(error ?? 'no details');
+
+        this.diag = `${name}: ${message}`.slice(0, 200);
+    },
+
+    /**
+     * Human message per failure class — the three real-world buckets.
+     */
+    cameraBusyMessage(error) {
+        switch (error?.name) {
+            case 'NotReadableError':
+            case 'TrackStartError':
+                return 'Your camera seems to be in use — close other camera tabs or apps, then try again.';
+            case 'NotFoundError':
+            case 'DevicesNotFoundError':
+                return 'No camera was found on this device. Please use manual Time In instead.';
+            case 'OverconstrainedError':
+                return 'This device\u2019s camera does not support the requested mode. Please use manual Time In.';
+            default:
+                return 'No usable camera found. Please use manual Time In instead.';
+        }
     },
 
     stopCamera() {

@@ -7,6 +7,17 @@
         <div class="max-w-md mx-auto sm:px-6 lg:px-8">
             <x-card>
                 <div class="space-y-4">
+                    {{-- In-app browsers (Messenger/Instagram webviews) block the
+                    camera with no prompt and no error — offer the escape hatch --}}
+                    <div x-show="inAppBrowser" x-cloak
+                        class="rounded-lg bg-gold-50 border border-gold-300 px-4 py-3 text-sm text-gold-800">
+                        <p class="font-medium">You're opening OJT Sync from inside another app.</p>
+                        <p class="mt-1">In-app browsers block camera access. Open this page in Chrome to scan:</p>
+                        <a :href="escapeUrl"
+                            class="mt-2 inline-flex px-4 py-2 bg-primary-600 rounded-md font-semibold text-white text-xs uppercase tracking-wider hover:bg-primary-700">
+                            Open in Chrome
+                        </a>
+                    </div>
                     {{-- Result banner — ABOVE the viewport so it can never be
                     below the fold on a phone --}}
                     <div x-show="result" x-cloak>
@@ -42,7 +53,8 @@
                     takes over. Without JS, it (and the manual Time In link
                     below) are the only controls. --}}
                     <div class="relative aspect-square bg-primary-900 rounded-xl overflow-hidden">
-                        <video x-ref="video" playsinline muted class="absolute inset-0 h-full w-full object-cover"
+                        <video x-ref="video" playsinline muted autoplay
+                            class="absolute inset-0 h-full w-full object-cover"
                             :class="cameraState === 'running' ? 'opacity-100' : 'opacity-0'"></video>
 
                         {{-- Rendered server-side, hidden by Alpine as soon as the
@@ -92,10 +104,10 @@
                     {{-- Status line --}}
                     <p class="text-sm text-gray-500 text-center" x-text="statusLabel"></p>
 
-                    {{-- Low-level diagnostics (APP_DEBUG only) --}}
-                    @if (config('app.debug'))
-                        <p class="text-xs text-gray-400 text-center font-mono break-all" x-show="diag" x-cloak x-text="diag"></p>
-                    @endif
+                    {{-- Raw error detail — always shown when present (not gated
+                    on APP_DEBUG) so a failure on someone's phone is reportable --}}
+                    <p class="text-xs text-gray-400 text-center font-mono break-all"
+                        x-show="diag" x-cloak x-text="diag"></p>
 
                     {{-- Graceful fallback: manual check-in still works --}}
                     <div class="pt-2 border-t border-gray-100 text-center">
