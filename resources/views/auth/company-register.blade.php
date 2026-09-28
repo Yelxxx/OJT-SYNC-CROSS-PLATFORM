@@ -38,7 +38,7 @@
         <div class="mt-4 grid grid-cols-1 sm:grid-cols-2 gap-4">
             <div>
                 <x-input-label for="company_phone" :value="__('Company Phone')" />
-                <x-text-input id="company_phone" class="block mt-1 w-full" type="text" name="company_phone" :value="old('company_phone')" placeholder="(046) 555-1234" />
+                <x-text-input id="company_phone" class="block mt-1 w-full" type="text" name="company_phone" :value="old('company_phone')" placeholder="(000) 000-1234" />
                 <x-input-error :messages="$errors->get('company_phone')" class="mt-2" />
             </div>
             <div>
@@ -62,7 +62,7 @@
         <!-- Contact Person -->
         <div class="mt-3">
             <x-input-label for="contact_person" :value="__('Contact Person')" />
-            <x-text-input id="contact_person" class="block mt-1 w-full" type="text" name="contact_person" :value="old('contact_person')" required placeholder="HR officer's full name" />
+            <x-text-input id="contact_person" class="block mt-1 w-full" type="text" name="contact_person" :value="old('contact_person')" required placeholder="HR personnel's full name" />
             <x-input-error :messages="$errors->get('contact_person')" class="mt-2" />
         </div>
 
