@@ -11,12 +11,11 @@ use Illuminate\Support\Facades\DB;
 class DtrService
 {
     /**
-     * Clock a student in.
-     *
-     * $checkinMethod records how the check-in happened: 'manual' (button) or
-     * 'qr' (scan-proven, set by ScanCheckinController).
+     * Clock a student in. ('manual' button check-ins only — the QR scan
+     * feature was removed and can be reintroduced later with its own
+     * checkin_method value.)
      */
-    public function checkin(Student $student, ?string $checkinMethod = null): DtrEntry
+    public function checkin(Student $student): DtrEntry
     {
         if (! $student->company_id) {
             throw new DomainActionException('no_company', 'You cannot clock in until a company has been assigned to you.', 403);
@@ -26,7 +25,7 @@ class DtrService
             throw new DomainActionException('inactive', 'Your OJT status must be active to clock in.', 403);
         }
 
-        return DB::transaction(function () use ($student, $checkinMethod) {
+        return DB::transaction(function () use ($student) {
             if ($student->dtrEntries()->whereNull('time_out')->exists()) {
                 throw new DomainActionException('already_active', 'You already have an active time-in. Please time out first.', 409);
             }
@@ -36,7 +35,7 @@ class DtrService
                 'date' => now()->toDateString(),
                 'time_in' => now(),
                 'hours' => 0,
-                'checkin_method' => $checkinMethod ?? 'manual',
+                'checkin_method' => 'manual',
             ]);
         });
     }

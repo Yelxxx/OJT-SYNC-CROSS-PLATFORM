@@ -10,7 +10,6 @@ use Illuminate\Http\Request;
 return Application::configure(basePath: dirname(__DIR__))
     ->withRouting(
         web: __DIR__.'/../routes/web.php',
-        api: __DIR__.'/../routes/api.php',
         commands: __DIR__.'/../routes/console.php',
         health: '/up',
     )
@@ -29,14 +28,13 @@ return Application::configure(basePath: dirname(__DIR__))
             'hired' => EnsureHired::class,
         ]);
 
-        // CSRF is validated everywhere. The API surface is down to the QR
-        // scan check-in (routes/api.php), which is a same-origin fetch from
-        // the scanner page and sends the X-CSRF-TOKEN header like any form.
-        // (The offline sync queue that motivated the old api/* exemption has
-        // been removed.)
+        // CSRF is validated everywhere. (The api/* exemption from the offline
+        // sync era is gone along with the QR scan-checkin API — the app is
+        // standard web forms again.)
     })
+    // Must stay present even though nothing custom is configured: calling
+    // withExceptions() is what registers the exception handler binding.
     ->withExceptions(function (Exceptions $exceptions): void {
-        $exceptions->shouldRenderJsonWhen(
-            fn (Request $request) => $request->is('api/*'),
-        );
-    })->create();
+        //
+    })
+    ->create();

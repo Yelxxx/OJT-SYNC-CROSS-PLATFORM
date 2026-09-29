@@ -1,5 +1,4 @@
 import Alpine from 'alpinejs';
-import qrScanner from './qr-scanner.js';
 
 Alpine.data('loadingScreen', () => ({
     visible: true,
@@ -150,8 +149,6 @@ Alpine.data('installPrompt', () => ({
         }
     },
 }));
-
-Alpine.data('qrScanner', qrScanner);
 
 /* ------------------------------------------------------------------ */
 /* Live shift clock (student DTR page)                                 */

@@ -1,12 +1,6 @@
 {
-  "node_modules/zxing-wasm/dist/es/reader/index.js": {
-    "file": "assets/reader-Cx5cFgjW.js",
-    "name": "reader",
-    "src": "node_modules/zxing-wasm/dist/es/reader/index.js",
-    "isDynamicEntry": true
-  },
   "resources/css/app.css": {
-    "file": "assets/app-DTY84U63.css",
+    "file": "assets/app-DAIoXRnB.css",
     "name": "app",
     "names": [
       "app.css"
@@ -15,13 +9,10 @@
     "isEntry": true
   },
   "resources/js/app.js": {
-    "file": "assets/app-FjXVrFj8.js",
+    "file": "assets/app-BekL5BaP.js",
     "name": "app",
     "src": "resources/js/app.js",
-    "isEntry": true,
-    "dynamicImports": [
-      "node_modules/zxing-wasm/dist/es/reader/index.js"
-    ]
+    "isEntry": true
   },
   "resources/js/registerSW.js": {
     "file": "assets/registerSW-DLNULmQI.js",

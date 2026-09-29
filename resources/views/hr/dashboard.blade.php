@@ -84,11 +84,11 @@
                                 </span>
                                 <span class="text-sm font-medium text-gray-700 group-hover:text-primary-700 transition">Review applications</span>
                             </a>
-                            <a href="{{ route('hr.checkin.qr') }}" class="flex items-center gap-3 p-3 rounded-lg border border-primary-100 hover:border-gold-300 hover:bg-gold-50/60 transition group">
+                            <a href="{{ route('hr.dtr.index') }}" class="flex items-center gap-3 p-3 rounded-lg border border-primary-100 hover:border-gold-300 hover:bg-gold-50/60 transition group">
                                 <span class="h-9 w-9 rounded-lg bg-gold-100 text-gold-600 flex items-center justify-center group-hover:bg-gold-200 transition">
-                                    <x-icon name="search" class="h-5 w-5" />
+                                    <x-icon name="clock" class="h-5 w-5" />
                                 </span>
-                                <span class="text-sm font-medium text-gray-700 group-hover:text-gold-700 transition">Show worksite check-in QR</span>
+                                <span class="text-sm font-medium text-gray-700 group-hover:text-gold-700 transition">Verify time records</span>
                             </a>
                         </div>
                     </x-card>

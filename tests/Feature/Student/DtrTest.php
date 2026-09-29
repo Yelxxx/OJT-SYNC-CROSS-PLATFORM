@@ -39,9 +39,6 @@ class DtrTest extends TestCase
         $this->get(route('student.dtr.index'))
             ->assertRedirect(route('student.applications.index'))
             ->assertSessionHas('error', 'You can record time in / out once a company has hired you.');
-
-        $this->get(route('student.dtr.scan'))
-            ->assertRedirect(route('student.applications.index'));
     }
 
     public function test_student_cannot_check_in_without_assigned_company(): void

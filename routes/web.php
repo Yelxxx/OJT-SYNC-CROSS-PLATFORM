@@ -9,7 +9,6 @@ use App\Http\Controllers\Coordinator\StudentController as CoordinatorStudentCont
 use App\Http\Controllers\DashboardController;
 use App\Http\Controllers\EvaluationFillController;
 use App\Http\Controllers\Hr\ApplicationController as HrApplicationController;
-use App\Http\Controllers\Hr\CheckinQrController as HrCheckinQrController;
 use App\Http\Controllers\Hr\CompanyProfileController as HrCompanyProfileController;
 use App\Http\Controllers\Hr\DashboardController as HrDashboardController;
 use App\Http\Controllers\Hr\DtrVerificationController as HrDtrVerificationController;
@@ -90,7 +89,6 @@ Route::middleware(['auth', 'verified', 'role:student'])
         Route::delete('/applications/{application}', [StudentApplicationController::class, 'destroy'])->name('applications.destroy');
         Route::middleware('hired')->group(function () {
             Route::get('/dtr', [StudentDtrController::class, 'index'])->name('dtr.index');
-            Route::get('/dtr/scan', [StudentDtrController::class, 'scan'])->name('dtr.scan');
             Route::post('/dtr/checkin', [StudentDtrController::class, 'checkin'])->name('dtr.checkin');
             Route::post('/dtr/checkout', [StudentDtrController::class, 'checkout'])->name('dtr.checkout');
         });
@@ -123,8 +121,6 @@ Route::middleware(['auth', 'verified', 'role:hr'])
         Route::patch('/company', [HrCompanyProfileController::class, 'update'])->name('company.update');
         Route::get('/dtr', [HrDtrVerificationController::class, 'index'])->name('dtr.index');
         Route::post('/dtr/{entry}/verify', [HrDtrVerificationController::class, 'verify'])->name('dtr.verify');
-        Route::get('/checkin/qr', [HrCheckinQrController::class, 'show'])->name('checkin.qr');
-        Route::get('/checkin/qr/token', [HrCheckinQrController::class, 'token'])->name('checkin.qr.token');
         Route::get('/jobs/{job}/qr', [ShareController::class, 'jobQr'])->name('jobs.qr');
         Route::resource('jobs', HrJobController::class)->except(['show']);
         Route::get('/applications', [HrApplicationController::class, 'index'])->name('applications.index');

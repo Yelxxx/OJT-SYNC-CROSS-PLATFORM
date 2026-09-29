@@ -89,10 +89,6 @@
                                             Time In
                                         </button>
                                     </form>
-                                    <a href="{{ route('student.dtr.scan') }}"
-                                        class="mt-2 w-full inline-flex justify-center items-center gap-1.5 px-4 py-2 border border-primary-200 rounded-md font-semibold text-primary-700 uppercase tracking-wider hover:bg-primary-50 focus:outline-none focus:ring-2 focus:ring-primary-500 focus:ring-offset-2 text-sm">
-                                        <x-icon name="search" class="h-4 w-4" /> Time In via QR
-                                    </a>
                                 </div>
                             @endif
                         </div>
