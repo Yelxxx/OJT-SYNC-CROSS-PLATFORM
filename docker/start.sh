@@ -14,8 +14,10 @@ chmod -R 775 bootstrap/cache storage || true
 chown -R www-data:www-data bootstrap/cache storage || true
 
 # Migrate + seed. Failures are logged but never block Apache — the real
-# error stays visible in the Render log viewer.
+# error stays visible in the Render log viewer. Config is cached AFTER
+# migration so the database session driver resolves against the live DB.
 if php artisan migrate --force --no-interaction; then
+    php artisan config:cache || echo "[boot] WARNING: config:cache failed"
     php artisan db:seed --force || echo "[boot] WARNING: seeding failed — see errors above"
 else
     echo "[boot] WARNING: migration FAILED (check DB_URL) — starting Apache anyway"

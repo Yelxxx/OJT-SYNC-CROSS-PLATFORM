@@ -3,7 +3,7 @@
         <h2 class="font-semibold text-xl text-primary-900 leading-tight">Scan to Time In</h2>
     </x-slot>
 
-    <div class="py-12" x-data="qrScanner({ redirectUrl: '{{ route('student.dtr.index') }}' })">
+    <div class="py-12" x-data="qrScanner({ redirectUrl: '{{ route('student.dtr.index') }}', loginUrl: '{{ route('login') }}' })">
         <div class="max-w-md mx-auto sm:px-6 lg:px-8">
             <x-card>
                 <div class="space-y-4">

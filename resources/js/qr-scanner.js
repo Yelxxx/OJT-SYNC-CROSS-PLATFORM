@@ -84,6 +84,7 @@ export default (initialState) => ({
     photoBusy: false, // decoding a captured photo
     redirectUrl: initialState?.redirectUrl ?? '/student/dtr',
     submitUrl: initialState?.submitUrl ?? '/api/dtr/scan-checkin',
+    loginUrl: initialState?.loginUrl ?? '/login',
     ...initialState,
 
     async init() {
@@ -425,6 +426,14 @@ export default (initialState) => ({
                 this.submitTimer = setTimeout(() => {
                     window.location.href = this.redirectUrl;
                 }, 1200);
+                return;
+            }
+
+            // Session lost (expired, or wiped by a server redeploy while the
+            // page was open): log in again — the middleware bounces back here
+            // afterwards. Never show a dead-end "Unauthenticated." banner.
+            if (response.status === 401) {
+                window.location.href = this.loginUrl;
                 return;
             }
 

@@ -65,7 +65,11 @@ return [
 
 
 
-    'timezone' => 'UTC',
+    // Single-country deployment (PH): display and compute wall-clock times in
+    // Manila. Timestamps remain epoch-based internally, so only the rendering
+    // and "today" boundaries change. Rows created before this switch display
+    // shifted by the old UTC offset.
+    'timezone' => env('APP_TIMEZONE', 'Asia/Manila'),
 
     
 
