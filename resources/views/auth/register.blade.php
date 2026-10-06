@@ -1,6 +1,6 @@
 <x-guest-layout>
     <div class="mb-6 text-center">
-        <h2 class="text-2xl font-bold text-primary-900">Create your account</h2>
+        <h2 class="text-2xl font-bold text-primary-900">Create your account.</h2>
         <p class="mt-1 text-sm text-gray-500">Register as a student to begin your OJT journey.</p>
     </div>
 
