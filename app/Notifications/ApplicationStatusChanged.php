@@ -32,7 +32,7 @@ class ApplicationStatusChanged extends Notification
     public function toArray(object $notifiable): array
     {
         return [
-            'application_id' => $this->application->id,
+            'application_id' => $this->application->id, 
             'job_posting_id' => $this->application->job_posting_id,
             'job_title' => $this->application->jobPosting->title,
             'company_name' => $this->application->jobPosting->company->name,
