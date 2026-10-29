@@ -25,24 +25,42 @@
 
 ```mermaid
 flowchart LR
-    subgraph Users ["Actors"]
+    %% Actors
+    subgraph Actors ["👥 Actors"]
+        direction TB
         Student["🎓 Student"]
         HR["🏢 Company HR"]
         Coord["📋 Coordinator"]
         Super["⭐ Supervisor"]
     end
 
-    subgraph Hub ["OJT Sync Platform"]
-        App["Job Matching & Applications"]
-        DTR["Daily Time Records (DTR)"]
-        Journal["Weekly E-Journals"]
-        Eval["Tokenized Evaluations"]
+    %% Platform Modules
+    subgraph Platform ["🏛 OJT Sync Platform"]
+        direction TB
+        Jobs["💼 Job Matching & Applications"]
+        DTR["⏱ Daily Time Records (DTR)"]
+        Journal["📝 Weekly E-Journals"]
+        Eval["📋 Tokenized Evaluations"]
     end
 
-    Student -->|Apply & Log Hours| Hub
-    HR -->|Verify Logs & Onboard| Hub
-    Coord -->|Monitor Overall Progress| Hub
-    Super -->|Rate Interns Anonymously| Eval
+    %% Specific, accurate connections to modules
+    Student -->|Apply with Resume| Jobs
+    Student -->|Check-in / Check-out| DTR
+    Student -->|Submit Weekly Reflection| Journal
+
+    HR -->|Post Openings & Screen Applicants| Jobs
+    HR -->|Verify Daily Hours| DTR
+    HR -->|Generate Evaluation Request| Eval
+
+    Coord -->|Monitor Cohort Progress & Hours| DTR
+    Coord -->|Review Task Submissions| Journal
+    Coord -->|Audit Final Scores| Eval
+
+    Super -->|Submit Scores via Secure Link| Eval
+
+    %% Styling
+    style Actors fill:#1e293b,stroke:#475569,stroke-width:2px,color:#f8fafc
+    style Platform fill:#0f172a,stroke:#3b82f6,stroke-width:2px,color:#f8fafc
 ```
 
 ---
