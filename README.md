@@ -26,21 +26,21 @@
 ```mermaid
 flowchart LR
     %% Actors
-    subgraph Actors ["👥 Actors"]
+    subgraph Actors ["Actors"]
         direction TB
-        Student["🎓 Student"]
-        HR["🏢 Company HR"]
-        Coord["📋 Coordinator"]
-        Super["⭐ Supervisor"]
+        Student["Student"]
+        HR["Company HR"]
+        Coord["Coordinator"]
+        Super["Supervisor"]
     end
 
     %% Platform Modules
-    subgraph Platform ["🏛 OJT Sync Platform"]
+    subgraph Platform ["OJT Sync Platform"]
         direction TB
-        Jobs["💼 Job Matching & Applications"]
-        DTR["⏱ Daily Time Records (DTR)"]
-        Journal["📝 Weekly E-Journals"]
-        Eval["📋 Tokenized Evaluations"]
+        Jobs["Job Matching & Applications"]
+        DTR["Daily Time Records (DTR)"]
+        Journal["Weekly E-Journals"]
+        Eval["Tokenized Evaluations"]
     end
 
     %% Specific, accurate connections to modules
@@ -117,7 +117,7 @@ flowchart LR
 ```
                     ┌────────────────────────┐
                     │      System Admin      │
-                    │ (Company Verification) │
+                                             │
                     └───────────┬────────────┘
                                 │
         ┌───────────────────────┼───────────────────────┐
