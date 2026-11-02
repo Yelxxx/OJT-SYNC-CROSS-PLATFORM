@@ -98,7 +98,14 @@
 
             {{-- Entry history --}}
             <x-card>
-                <x-section-header title="Entry History" />
+                <div class="flex items-center justify-between pb-4 border-b border-gray-100">
+                    <x-section-header title="Entry History" />
+                    <a href="{{ route('student.dtr.print') }}" target="_blank"
+                       class="inline-flex items-center gap-1.5 px-3 py-1.5 bg-primary-50 border border-primary-200 rounded-lg text-xs font-semibold text-primary-700 hover:bg-primary-100 transition shadow-sm">
+                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 17h2a2 2 0 002-2v-4a2 2 0 00-2-2H5a2 2 0 00-2 2v4a2 2 0 002 2h2m2 4h6a2 2 0 002-2v-4a2 2 0 00-2-2H9a2 2 0 00-2 2v4a2 2 0 002 2zm8-12V5a2 2 0 00-2-2H9a2 2 0 00-2 2v4h10z"/></svg>
+                        Print Official DTR
+                    </a>
+                </div>
 
                 <div class="mt-4">
                     @if ($entries->isEmpty())
@@ -112,17 +119,32 @@
                                         <th class="px-4 py-3">Time In</th>
                                         <th class="px-4 py-3">Time Out</th>
                                         <th class="px-4 py-3">Hours</th>
+                                        <th class="px-4 py-3">Status</th>
                                         <th class="px-4 py-3">Task Summary</th>
                                     </tr>
                                 </thead>
                                 <tbody class="divide-y divide-gray-100">
                                     @foreach ($entries as $entry)
                                         <tr class="hover:bg-primary-50 transition">
-                                            <td class="px-4 py-3 text-gray-700">{{ $entry->date->format('M d, Y') }}</td>
-                                            <td class="px-4 py-3 text-gray-600">{{ $entry->time_in->format('g:i A') }}</td>
-                                            <td class="px-4 py-3 text-gray-600">{{ $entry->time_out?->format('g:i A') ?? '—' }}</td>
+                                            <td class="px-4 py-3 text-gray-700 whitespace-nowrap">{{ $entry->date->format('M d, Y') }}</td>
+                                            <td class="px-4 py-3 text-gray-600 whitespace-nowrap">{{ $entry->time_in->format('g:i A') }}</td>
+                                            <td class="px-4 py-3 text-gray-600 whitespace-nowrap">{{ $entry->time_out?->format('g:i A') ?? '—' }}</td>
                                             <td class="px-4 py-3 font-medium text-gray-900">{{ number_format($entry->hours, 2) }}</td>
-                                            <td class="px-4 py-3 text-sm text-gray-500 max-w-xs truncate">{{ $entry->task_summary ?? '—' }}</td>
+                                            <td class="px-4 py-3 whitespace-nowrap">
+                                                @if ($entry->verification_status === \App\Models\DtrEntry::VERIFICATION_VERIFIED)
+                                                    <span class="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-xs font-semibold bg-emerald-100 text-emerald-700 ring-1 ring-inset ring-emerald-200"><x-icon name="check-circle" class="h-3 w-3" /> Verified</span>
+                                                @elseif ($entry->verification_status === \App\Models\DtrEntry::VERIFICATION_DISPUTED)
+                                                    <span class="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-xs font-semibold bg-red-100 text-red-700 ring-1 ring-inset ring-red-200" title="{{ $entry->dispute_reason }}"><x-icon name="x-circle" class="h-3 w-3" /> Disputed</span>
+                                                @else
+                                                    <span class="inline-flex items-center px-2 py-0.5 rounded-full text-xs font-semibold bg-gold-100 text-gold-800 ring-1 ring-inset ring-gold-300">Pending</span>
+                                                @endif
+                                            </td>
+                                            <td class="px-4 py-3 text-sm text-gray-500 max-w-xs">
+                                                <div class="truncate">{{ $entry->task_summary ?? '—' }}</div>
+                                                @if ($entry->verification_status === \App\Models\DtrEntry::VERIFICATION_DISPUTED && $entry->dispute_reason)
+                                                    <p class="mt-1 text-xs text-red-600 font-medium">Notice: {{ $entry->dispute_reason }}</p>
+                                                @endif
+                                            </td>
                                         </tr>
                                     @endforeach
                                 </tbody>

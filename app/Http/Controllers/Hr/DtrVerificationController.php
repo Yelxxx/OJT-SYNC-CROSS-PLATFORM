@@ -46,13 +46,22 @@ class DtrVerificationController extends Controller
 
         $validated = $request->validate([
             'status' => ['required', 'in:'.implode(',', array_keys(DtrEntry::VERIFICATION_STATUSES))],
+            'dispute_reason' => ['nullable', 'string', 'max:500'],
         ]);
 
-        $entry->update([
+        $updateData = [
             'verification_status' => $validated['status'],
             'verified_by' => $validated['status'] === DtrEntry::VERIFICATION_UNVERIFIED ? null : Auth::id(),
             'verified_at' => $validated['status'] === DtrEntry::VERIFICATION_UNVERIFIED ? null : now(),
-        ]);
+        ];
+
+        if ($validated['status'] === DtrEntry::VERIFICATION_DISPUTED) {
+            $updateData['dispute_reason'] = $validated['dispute_reason'] ?? 'Disputed by supervisor without remarks.';
+        } elseif ($validated['status'] === DtrEntry::VERIFICATION_VERIFIED) {
+            $updateData['dispute_reason'] = null;
+        }
+
+        $entry->update($updateData);
 
         $message = match ($validated['status']) {
             DtrEntry::VERIFICATION_VERIFIED => 'Hours verified.',
@@ -61,6 +70,32 @@ class DtrVerificationController extends Controller
         };
 
         return back()->with('status', $message);
+    }
+
+    public function bulkVerify(Request $request): RedirectResponse
+    {
+        $company = Auth::user()->company;
+        abort_if(! $company, 403, 'Your account is not linked to a company.');
+
+        $validated = $request->validate([
+            'entry_ids' => ['required', 'array'],
+            'entry_ids.*' => ['integer', 'exists:dtr_entries,id'],
+            'status' => ['required', 'in:'.DtrEntry::VERIFICATION_VERIFIED.','.DtrEntry::VERIFICATION_UNVERIFIED],
+        ]);
+
+        $updatedCount = DtrEntry::query()
+            ->whereIn('id', $validated['entry_ids'])
+            ->whereHas('student', fn ($q) => $q->where('company_id', $company->id))
+            ->whereNotNull('time_out')
+            ->update([
+                'verification_status' => $validated['status'],
+                'verified_by' => $validated['status'] === DtrEntry::VERIFICATION_UNVERIFIED ? null : Auth::id(),
+                'verified_at' => $validated['status'] === DtrEntry::VERIFICATION_UNVERIFIED ? null : now(),
+                'dispute_reason' => null,
+            ]);
+
+        $action = $validated['status'] === DtrEntry::VERIFICATION_VERIFIED ? 'verified' : 'unverified';
+        return back()->with('status', "Successfully marked {$updatedCount} time records as {$action}.");
     }
 
     private function authorizeEntry(DtrEntry $entry): void

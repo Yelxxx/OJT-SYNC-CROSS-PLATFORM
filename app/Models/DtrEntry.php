@@ -16,6 +16,7 @@ class DtrEntry extends Model
         'task_summary',
         'checkin_method',
         'verification_status',
+        'dispute_reason',
         'verified_by',
         'verified_at',
     ];

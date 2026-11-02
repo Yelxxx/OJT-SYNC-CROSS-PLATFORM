@@ -23,4 +23,25 @@ class DtrController extends Controller
             'q' => $request->input('q'),
         ]);
     }
+
+    public function print(Request $request, \App\Models\Student $student): View
+    {
+        $entries = $student->dtrEntries()
+            ->latest('date')
+            ->latest('time_in')
+            ->get();
+
+        $verifiedHours = (float) $student->dtrEntries()
+            ->where('verification_status', \App\Models\DtrEntry::VERIFICATION_VERIFIED)
+            ->sum('hours');
+
+        return view('dtr.print', [
+            'student' => $student,
+            'entries' => $entries,
+            'totalHours' => (float) $student->totalHours(),
+            'verifiedHours' => $verifiedHours,
+            'requiredHours' => $student->required_hours ?? 300,
+            'company' => $student->company,
+        ]);
+    }
 }

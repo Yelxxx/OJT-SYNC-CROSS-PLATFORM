@@ -89,6 +89,7 @@ Route::middleware(['auth', 'verified', 'role:student'])
         Route::delete('/applications/{application}', [StudentApplicationController::class, 'destroy'])->name('applications.destroy');
         Route::middleware('hired')->group(function () {
             Route::get('/dtr', [StudentDtrController::class, 'index'])->name('dtr.index');
+            Route::get('/dtr/print', [StudentDtrController::class, 'print'])->name('dtr.print');
             Route::post('/dtr/checkin', [StudentDtrController::class, 'checkin'])->name('dtr.checkin');
             Route::post('/dtr/checkout', [StudentDtrController::class, 'checkout'])->name('dtr.checkout');
         });
@@ -104,6 +105,7 @@ Route::middleware(['auth', 'verified', 'role:coordinator'])
     ->group(function () {
         Route::get('/dashboard', [CoordinatorDashboardController::class, 'index'])->name('dashboard');
         Route::get('/dtr', [CoordinatorDtrController::class, 'index'])->name('dtr.index');
+        Route::get('/dtr/students/{student}/print', [CoordinatorDtrController::class, 'print'])->name('dtr.print');
         Route::get('/journals', [CoordinatorJournalController::class, 'index'])->name('journals.index');
         Route::get('/evaluations', [CoordinatorEvaluationController::class, 'index'])->name('evaluations.index');
         Route::patch('/students/{student}', [CoordinatorStudentController::class, 'update'])->name('students.update');
@@ -120,6 +122,7 @@ Route::middleware(['auth', 'verified', 'role:hr'])
         Route::get('/company/edit', [HrCompanyProfileController::class, 'edit'])->name('company.edit');
         Route::patch('/company', [HrCompanyProfileController::class, 'update'])->name('company.update');
         Route::get('/dtr', [HrDtrVerificationController::class, 'index'])->name('dtr.index');
+        Route::post('/dtr/bulk-verify', [HrDtrVerificationController::class, 'bulkVerify'])->name('dtr.bulk-verify');
         Route::post('/dtr/{entry}/verify', [HrDtrVerificationController::class, 'verify'])->name('dtr.verify');
         Route::get('/jobs/{job}/qr', [ShareController::class, 'jobQr'])->name('jobs.qr');
         Route::resource('jobs', HrJobController::class)->except(['show']);

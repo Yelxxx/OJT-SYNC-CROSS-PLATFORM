@@ -63,4 +63,28 @@ class DtrController extends Controller
 
         return back()->with('status', 'Timed out. Great work today!');
     }
+
+    public function print(Request $request): View
+    {
+        $student = Auth::user()->studentProfile;
+        abort_if(! $student, 403, 'Student profile not found.');
+
+        $entries = $student->dtrEntries()
+            ->latest('date')
+            ->latest('time_in')
+            ->get();
+
+        $verifiedHours = (float) $student->dtrEntries()
+            ->where('verification_status', \App\Models\DtrEntry::VERIFICATION_VERIFIED)
+            ->sum('hours');
+
+        return view('dtr.print', [
+            'student' => $student,
+            'entries' => $entries,
+            'totalHours' => (float) $student->totalHours(),
+            'verifiedHours' => $verifiedHours,
+            'requiredHours' => $student->required_hours ?? 300,
+            'company' => $student->company,
+        ]);
+    }
 }
