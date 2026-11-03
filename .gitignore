@@ -34,6 +34,26 @@ Thumbs.db
 /server*.out
 /memory
 /scripts
-CROSS_PLATFORM_PLAN.md
-HR_Dashboard_Presentation_Script_KlaireOne.pdf
-*.pdf
+/.freebuff
+__pycache__/
+*.pyc
+
+# Local SQLite databases
+/database/*.sqlite
+/database/*.sqlite-journal
+
+# Temporary and test artifacts
+test_shot.png
+test_ink.png
+test_svg.png
+test_diag.svg
+*.tmp
+*.temp
+
+# Local DFD diagrams and PDF documentation (kept on local disk, not committed)
+/PROJECT_DFD*.png
+/PROJECT_DFD*.jpg
+/PROJECT_DFD*.drawio
+/PROJECT_DFD*.svg
+/*.pdf
+/OJT_SYNC_*.pdf

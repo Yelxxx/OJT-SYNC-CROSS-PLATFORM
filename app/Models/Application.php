@@ -79,4 +79,14 @@ class Application extends Model
     {
         return $query->where('status', self::STATUS_PENDING);
     }
+
+    public function isEndorsed(): bool
+    {
+        return $this->student && $this->student->isEndorsedFor($this->jobPosting->company_id);
+    }
+
+    public function endorsementNote(): ?string
+    {
+        return $this->isEndorsed() ? $this->student->endorsement_note : null;
+    }
 }

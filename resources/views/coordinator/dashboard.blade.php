@@ -30,10 +30,10 @@
                                     <th class="px-4 py-3">Student</th>
                                     <th class="px-4 py-3">Student No.</th>
                                     <th class="px-4 py-3">Program</th>
-                                    <th class="px-4 py-3">Company</th>
+                                    <th class="px-4 py-3">Hired Company</th>
                                     <th class="px-4 py-3">Hours</th>
-                                    <th class="px-4 py-3">Status</th>
-                                    <th class="px-4 py-3">Assign</th>
+                                    <th class="px-4 py-3">OJT Status</th>
+                                    <th class="px-4 py-3">Faculty Endorsement</th>
                                 </tr>
                             </thead>
                             <tbody class="divide-y divide-gray-100">
@@ -45,7 +45,15 @@
                                         </td>
                                         <td class="px-4 py-3 text-gray-600">{{ $student->student_no }}</td>
                                         <td class="px-4 py-3 text-gray-600">{{ $student->program ?? '—' }} · {{ $student->year_level ?? '—' }}</td>
-                                        <td class="px-4 py-3 text-gray-600">{{ $student->company?->name ?? '—' }}</td>
+                                        <td class="px-4 py-3 text-gray-600">
+                                            @if ($student->company)
+                                                <span class="inline-flex items-center gap-1 text-xs font-semibold text-green-800 bg-green-50 border border-green-200 px-2 py-0.5 rounded">
+                                                    {{ $student->company->name }}
+                                                </span>
+                                            @else
+                                                <span class="text-xs text-gray-400 italic">Not placed yet</span>
+                                            @endif
+                                        </td>
                                         <td class="px-4 py-3">
                                             <div class="flex items-center gap-2">
                                                 <div class="w-24 bg-primary-100 rounded-full h-2 overflow-hidden">
@@ -58,23 +66,28 @@
                                             <x-status-badge :status="$student->status === 'active' && ! $student->company_id ? 'pending' : $student->status" />
                                         </td>
                                         <td class="px-4 py-3">
-                                            <form method="POST" action="{{ route('coordinator.students.update', $student) }}" class="flex items-center gap-2">
+                                            <form method="POST" action="{{ route('coordinator.students.update', $student) }}" class="flex flex-col gap-1.5">
                                                 @csrf
                                                 @method('PATCH')
-                                                <select name="company_id" class="border-primary-200 focus:border-primary-500 focus:ring-primary-500 rounded-md shadow-sm text-xs max-w-[140px]">
-                                                    <option value="">—</option>
-                                                    @foreach ($companies as $company)
-                                                        <option value="{{ $company->id }}" @selected($student->company_id === $company->id)>{{ $company->name }}</option>
-                                                    @endforeach
-                                                </select>
-                                                <select name="status" class="border-primary-200 focus:border-primary-500 focus:ring-primary-500 rounded-md shadow-sm text-xs">
-                                                    @foreach (['pending' => 'Pending', 'active' => 'Active', 'completed' => 'Completed'] as $value => $label)
-                                                        <option value="{{ $value }}" @selected($student->status === $value)>{{ $label }}</option>
-                                                    @endforeach
-                                                </select>
-                                                <button type="submit" class="inline-flex items-center px-2.5 py-1.5 text-xs font-medium text-white bg-primary-600 rounded-md hover:bg-primary-700 transition">
-                                                    Save
-                                                </button>
+                                                <div class="flex items-center gap-1.5">
+                                                    <select name="endorsed_company_id" class="border-primary-200 focus:border-primary-500 focus:ring-primary-500 rounded-md shadow-sm text-xs max-w-[150px]">
+                                                        <option value="">No Endorsement</option>
+                                                        @foreach ($companies as $company)
+                                                            <option value="{{ $company->id }}" @selected($student->endorsed_company_id === $company->id)>{{ $company->name }}</option>
+                                                        @endforeach
+                                                    </select>
+                                                    <button type="submit" class="inline-flex items-center px-2 py-1 text-xs font-semibold text-white bg-primary-600 rounded-md hover:bg-primary-700 transition">
+                                                        Save
+                                                    </button>
+                                                </div>
+                                                <input type="text" name="endorsement_note" value="{{ old('endorsement_note', $student->endorsement_note) }}"
+                                                       placeholder="Recommendation note..."
+                                                       class="border-primary-200 focus:border-primary-500 focus:ring-primary-500 rounded-md shadow-sm text-[11px] px-2 py-0.5 w-full max-w-[210px]">
+                                                @if ($student->hasEndorsement())
+                                                    <span class="text-[10px] text-amber-800 bg-amber-50 border border-amber-200 px-1.5 py-0.5 rounded font-medium inline-block max-w-fit">
+                                                        Endorsed for: {{ $student->endorsedCompany?->name }}
+                                                    </span>
+                                                @endif
                                             </form>
                                         </td>
                                     </tr>

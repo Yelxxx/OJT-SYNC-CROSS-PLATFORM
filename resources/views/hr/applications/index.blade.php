@@ -59,7 +59,14 @@
                                 @foreach ($applications as $application)
                                     <tr class="hover:bg-primary-50 transition">
                                         <td class="px-4 py-4">
-                                            <a href="{{ route('hr.applications.show', $application) }}" class="font-medium text-gray-900 hover:text-primary-600 hover:underline">{{ $application->student->user->name }}</a>
+                                            <div class="flex items-center gap-2 flex-wrap">
+                                                <a href="{{ route('hr.applications.show', $application) }}" class="font-medium text-gray-900 hover:text-primary-600 hover:underline">{{ $application->student->user->name }}</a>
+                                                @if ($application->isEndorsed())
+                                                    <span class="inline-flex items-center px-2 py-0.5 rounded text-[10px] font-bold bg-amber-100 text-amber-800 border border-amber-300" title="{{ $application->endorsementNote() ?? 'Faculty Endorsed Candidate' }}">
+                                                        Faculty Endorsed
+                                                    </span>
+                                                @endif
+                                            </div>
                                             <p class="text-xs text-gray-500">{{ $application->student->program ?? '—' }} · {{ $application->student->year_level ?? '—' }}</p>
                                             @if ($application->cover_letter)
                                                 <details class="mt-1 text-xs text-gray-500">

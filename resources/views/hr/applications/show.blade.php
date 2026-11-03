@@ -45,6 +45,31 @@
                             </div>
                         @endif
 
+                        @if ($application->isEndorsed())
+                            <div class="mt-4 p-4 rounded-lg bg-amber-50 border border-amber-200">
+                                <div class="flex items-center justify-between gap-2">
+                                    <span class="inline-flex items-center px-2 py-0.5 rounded text-xs font-bold bg-amber-200 text-amber-900">
+                                        Faculty Endorsement
+                                    </span>
+                                    <span class="text-xs text-amber-700">
+                                        Endorsed on {{ $application->student->endorsed_at?->format('M d, Y') ?? 'Academic Term' }}
+                                    </span>
+                                </div>
+                                <p class="mt-2 text-xs font-semibold text-amber-900">
+                                    Endorsed by: <span class="font-normal">{{ $application->student->coordinator?->name ?? 'University Faculty Coordinator' }}</span>
+                                </p>
+                                @if ($application->endorsementNote())
+                                    <p class="mt-1 text-xs text-amber-800 italic">
+                                        "{{ $application->endorsementNote() }}"
+                                    </p>
+                                @else
+                                    <p class="mt-1 text-xs text-amber-700 italic">
+                                        Candidate is recommended for prioritized internship placement by the university department.
+                                    </p>
+                                @endif
+                            </div>
+                        @endif
+
                         <div class="mt-6 space-y-4">
                             <div>
                                 <h4 class="text-xs font-semibold uppercase tracking-wider text-gray-500 mb-2">Cover letter</h4>

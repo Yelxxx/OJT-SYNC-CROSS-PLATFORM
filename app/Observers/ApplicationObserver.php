@@ -19,8 +19,11 @@ class ApplicationObserver
 
         $companyId = $application->jobPosting->company_id;
 
-        if ($application->student->company_id !== $companyId) {
-            $application->student->update(['company_id' => $companyId]);
+        if ($application->student->company_id !== $companyId || $application->student->status !== 'active') {
+            $application->student->update([
+                'company_id' => $companyId,
+                'status' => 'active',
+            ]);
         }
 
         InternChecklistItem::seedDefaultsForStudent($application->student_id);

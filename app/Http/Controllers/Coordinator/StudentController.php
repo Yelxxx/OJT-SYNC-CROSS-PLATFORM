@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\Coordinator;
 
 use App\Http\Controllers\Controller;
+use App\Models\Company;
 use App\Models\Student;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
@@ -19,12 +20,33 @@ class StudentController extends Controller
         );
 
         $validated = $request->validate([
-            'company_id' => ['nullable', 'integer', 'exists:companies,id'],
-            'status' => ['required', 'in:pending,active,completed'],
+            'endorsed_company_id' => ['nullable', 'integer', 'exists:companies,id'],
+            'company_id' => ['nullable', 'integer', 'exists:companies,id'], // fallback compatibility
+            'endorsement_note' => ['nullable', 'string', 'max:500'],
+            'status' => ['nullable', 'in:pending,active,completed'],
         ]);
 
-        $student->update($validated);
+        $targetCompanyId = $validated['endorsed_company_id'] ?? $validated['company_id'] ?? null;
 
-        return back()->with('status', 'Student updated.');
+        $updateData = [
+            'endorsed_company_id' => $targetCompanyId,
+            'endorsement_note' => $targetCompanyId ? ($validated['endorsement_note'] ?? $student->endorsement_note) : null,
+            'endorsed_at' => $targetCompanyId ? ($student->endorsed_at ?? now()) : null,
+        ];
+
+        // Coordinator can only certify completion once required hours are reached,
+        // but cannot unilaterally hire or activate a student into a company.
+        if (isset($validated['status']) && $validated['status'] === 'completed') {
+            $updateData['status'] = 'completed';
+        }
+
+        $student->update($updateData);
+
+        $companyName = $targetCompanyId ? Company::find($targetCompanyId)?->name : null;
+        $message = $companyName
+            ? "Student successfully endorsed to {$companyName} with priority recommendation."
+            : "Student recommendation cleared.";
+
+        return back()->with('status', $message);
     }
 }

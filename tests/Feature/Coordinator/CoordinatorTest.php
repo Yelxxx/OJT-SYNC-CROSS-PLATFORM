@@ -58,20 +58,23 @@ class CoordinatorTest extends TestCase
             ->assertSee('Week One');
     }
 
-    public function test_coordinator_can_assign_company_to_student(): void
+    public function test_coordinator_can_endorse_company_to_student(): void
     {
         $coordinator = $this->coordinator();
         $student = Student::factory()->create(['company_id' => null, 'coordinator_id' => $coordinator->id]);
         $company = Company::factory()->create();
 
         $this->patch(route('coordinator.students.update', $student), [
-            'company_id' => $company->id,
-            'status' => 'active',
+            'endorsed_company_id' => $company->id,
+            'endorsement_note' => 'Strong web development background.',
         ])->assertRedirect();
 
         $student->refresh();
 
-        $this->assertSame($company->id, $student->company_id);
-        $this->assertSame('active', $student->status);
+        $this->assertSame($company->id, $student->endorsed_company_id);
+        $this->assertSame('Strong web development background.', $student->endorsement_note);
+        $this->assertNotNull($student->endorsed_at);
+        // Coordinator endorsement does NOT force-hire the student into the company
+        $this->assertNull($student->company_id);
     }
 }

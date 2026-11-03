@@ -18,6 +18,9 @@ class Student extends Model
         'user_id',
         'coordinator_id',
         'company_id',
+        'endorsed_company_id',
+        'endorsement_note',
+        'endorsed_at',
         'student_no',
         'program',
         'year_level',
@@ -27,6 +30,7 @@ class Student extends Model
 
     protected $casts = [
         'required_hours' => 'integer',
+        'endorsed_at' => 'datetime',
     ];
 
     public function user(): BelongsTo
@@ -42,6 +46,23 @@ class Student extends Model
     public function company(): BelongsTo
     {
         return $this->belongsTo(Company::class);
+    }
+
+    public function endorsedCompany(): BelongsTo
+    {
+        return $this->belongsTo(Company::class, 'endorsed_company_id');
+    }
+
+    public function isEndorsedFor(int|Company $company): bool
+    {
+        $companyId = $company instanceof Company ? $company->id : $company;
+
+        return $this->endorsed_company_id !== null && $this->endorsed_company_id === (int) $companyId;
+    }
+
+    public function hasEndorsement(): bool
+    {
+        return $this->endorsed_company_id !== null;
     }
 
     public function applications(): HasMany
