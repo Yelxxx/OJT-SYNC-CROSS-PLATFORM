@@ -50,12 +50,20 @@ test_diag.svg
 *.tmp
 *.temp
 
-# Local DFD diagrams and PDF documentation (kept on local disk, not committed)
-/PROJECT_DFD*.png
-/PROJECT_DFD*.jpg
-/PROJECT_DFD*.drawio
-/PROJECT_DFD*.svg
-/*.pdf
-/OJT_SYNC_*.pdf
-/OJT_SYNC_*.drawio
-/*.drawio
+# Office, Word, Excel, and Presentation documents
+*.doc
+*.docx
+*.xls
+*.xlsx
+*.ppt
+*.pptx
+*.odt
+*.ods
+
+# Diagram, Vector, Design & PDF exports
+*.drawio
+*.drawio.bkp
+*.drawio.dtmp
+*.pdf
+/PROJECT_DFD*
+/OJT_SYNC_*

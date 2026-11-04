@@ -1,0 +1,72 @@
+<?php
+
+namespace App\Http\Controllers\Student;
+
+use App\Http\Controllers\Controller;
+use App\Models\InternChecklistItem;
+use Illuminate\Http\RedirectResponse;
+use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Storage;
+use Illuminate\View\View;
+use Symfony\Component\HttpFoundation\StreamedResponse;
+
+class ChecklistController extends Controller
+{
+    public function index(): View
+    {
+        $student = Auth::user()->studentProfile;
+        abort_if(! $student, 403, 'Student profile not found.');
+
+        // Seed defaults if any are missing
+        InternChecklistItem::seedDefaultsForStudent($student->id);
+
+        $checklistItems = $student->checklistItems()->get();
+        $company = $student->company;
+
+        return view('student.checklist.index', [
+            'checklistItems' => $checklistItems,
+            'company' => $company,
+            'completedCount' => $checklistItems->where('is_complete', true)->count(),
+            'totalCount' => $checklistItems->count(),
+        ]);
+    }
+
+    public function upload(Request $request, InternChecklistItem $item): RedirectResponse
+    {
+        $student = Auth::user()->studentProfile;
+        abort_if($item->student_id !== $student?->id, 403, 'Unauthorized checklist item.');
+
+        $validated = $request->validate([
+            'document' => ['required', 'file', 'mimes:pdf,jpg,jpeg,png,doc,docx', 'max:10240'], // up to 10MB
+            'notes' => ['nullable', 'string', 'max:500'],
+        ]);
+
+        // If old file exists, clean it up
+        if ($item->file_path && Storage::disk('local')->exists($item->file_path)) {
+            Storage::disk('local')->delete($item->file_path);
+        }
+
+        $file = $request->file('document');
+        $fileName = $file->getClientOriginalName();
+        $storedPath = $file->store("checklists/{$student->id}", 'local');
+
+        $item->update([
+            'file_path' => $storedPath,
+            'file_name' => $fileName,
+            'submitted_at' => now(),
+            'notes' => $validated['notes'] ?? $item->notes,
+        ]);
+
+        return back()->with('status', "Document '{$fileName}' uploaded successfully.");
+    }
+
+    public function download(InternChecklistItem $item): StreamedResponse
+    {
+        $student = Auth::user()->studentProfile;
+        abort_if($item->student_id !== $student?->id, 403, 'Unauthorized checklist item.');
+        abort_if(! $item->file_path || ! Storage::disk('local')->exists($item->file_path), 404, 'File not found.');
+
+        return Storage::disk('local')->download($item->file_path, $item->file_name);
+    }
+}

@@ -19,11 +19,16 @@ class InternChecklistItem extends Model
         'title',
         'is_complete',
         'completed_at',
+        'file_path',
+        'file_name',
+        'submitted_at',
+        'notes',
     ];
 
     protected $casts = [
         'is_complete' => 'boolean',
         'completed_at' => 'datetime',
+        'submitted_at' => 'datetime',
     ];
 
     public function student(): BelongsTo

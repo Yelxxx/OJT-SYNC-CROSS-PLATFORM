@@ -28,6 +28,9 @@
                                 <x-nav-link :href="route('student.dtr.index')" :active="request()->routeIs('student.dtr.*')">
                                     {{ __('DTR') }}
                                 </x-nav-link>
+                                <x-nav-link :href="route('student.checklist.index')" :active="request()->routeIs('student.checklist.*')">
+                                    {{ __('Requirements') }}
+                                </x-nav-link>
                             @endif
                             <x-nav-link :href="route('student.journals.index')" :active="request()->routeIs('student.journals.*')">
                                 {{ __('E-Journals') }}
@@ -140,6 +143,9 @@
                     @if (Auth::user()->studentProfile?->company_id !== null)
                         <x-responsive-nav-link :href="route('student.dtr.index')" :active="request()->routeIs('student.dtr.*')">
                             {{ __('DTR') }}
+                        </x-responsive-nav-link>
+                        <x-responsive-nav-link :href="route('student.checklist.index')" :active="request()->routeIs('student.checklist.*')">
+                            {{ __('Requirements') }}
                         </x-responsive-nav-link>
                     @endif
                     <x-responsive-nav-link :href="route('student.journals.index')" :active="request()->routeIs('student.journals.*')">

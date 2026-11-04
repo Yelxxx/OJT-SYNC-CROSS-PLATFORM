@@ -20,6 +20,7 @@ use App\Http\Controllers\ProfileController;
 use App\Http\Controllers\ResumeController;
 use App\Http\Controllers\ShareController;
 use App\Http\Controllers\Student\ApplicationController as StudentApplicationController;
+use App\Http\Controllers\Student\ChecklistController as StudentChecklistController;
 use App\Http\Controllers\Student\DashboardController as StudentDashboardController;
 use App\Http\Controllers\Student\DtrController as StudentDtrController;
 use App\Http\Controllers\Student\JobController as StudentJobController;
@@ -92,6 +93,9 @@ Route::middleware(['auth', 'verified', 'role:student'])
             Route::get('/dtr/print', [StudentDtrController::class, 'print'])->name('dtr.print');
             Route::post('/dtr/checkin', [StudentDtrController::class, 'checkin'])->name('dtr.checkin');
             Route::post('/dtr/checkout', [StudentDtrController::class, 'checkout'])->name('dtr.checkout');
+            Route::get('/checklist', [StudentChecklistController::class, 'index'])->name('checklist.index');
+            Route::post('/checklist/{item}/upload', [StudentChecklistController::class, 'upload'])->name('checklist.upload');
+            Route::get('/checklist/{item}/download', [StudentChecklistController::class, 'download'])->name('checklist.download');
         });
         Route::get('/journals', [StudentJournalController::class, 'index'])->name('journals.index');
         Route::get('/journals/create', [StudentJournalController::class, 'create'])->name('journals.create');
@@ -118,6 +122,7 @@ Route::middleware(['auth', 'verified', 'role:hr'])
         Route::get('/dashboard', [HrDashboardController::class, 'index'])->name('dashboard');
         Route::get('/interns', [HrInternController::class, 'index'])->name('interns.index');
         Route::get('/interns/checklist/{checklistItem}/toggle', [HrInternController::class, 'toggleChecklistItem'])->name('interns.checklist.toggle');
+        Route::get('/interns/checklist/{checklistItem}/download', [HrInternController::class, 'downloadChecklistDocument'])->name('interns.checklist.download');
         Route::post('/interns/{student}/checklist', [HrInternController::class, 'addChecklistItem'])->name('interns.checklist.add');
         Route::get('/company/edit', [HrCompanyProfileController::class, 'edit'])->name('company.edit');
         Route::patch('/company', [HrCompanyProfileController::class, 'update'])->name('company.update');

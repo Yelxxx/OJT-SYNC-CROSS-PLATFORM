@@ -99,6 +99,14 @@ class InternController extends Controller
         return back()->with('status', 'Requirement added to the checklist.');
     }
 
+    public function downloadChecklistDocument(InternChecklistItem $checklistItem): \Symfony\Component\HttpFoundation\StreamedResponse
+    {
+        $this->authorizeStudent($checklistItem->student_id);
+        abort_if(! $checklistItem->file_path || ! \Illuminate\Support\Facades\Storage::disk('local')->exists($checklistItem->file_path), 404, 'File not found.');
+
+        return \Illuminate\Support\Facades\Storage::disk('local')->download($checklistItem->file_path, $checklistItem->file_name);
+    }
+
     private function authorizeStudent(int $studentId): void
     {
         $companyId = Auth::user()->company_id;

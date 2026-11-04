@@ -74,18 +74,24 @@
                                                     <summary class="cursor-pointer text-xs font-medium {{ $intern['checklistDone'] === $intern['checklistTotal'] ? 'text-emerald-700' : 'text-gold-700' }}">
                                                         {{ $intern['checklistDone'] }}/{{ $intern['checklistTotal'] }} done
                                                     </summary>
-                                                    <ul class="mt-2 space-y-1.5 w-56">
+                                                    <ul class="mt-2 space-y-2 w-64">
                                                         @foreach ($intern['student']->checklistItems as $item)
-                                                            <li>
+                                                            <li class="p-1.5 rounded hover:bg-gray-50 border border-transparent hover:border-gray-200 transition">
                                                                 <form method="POST" action="{{ route('hr.interns.checklist.toggle', $item) }}">
                                                                     @csrf
-                                                                    <button type="submit" class="flex items-start gap-2 text-left text-xs hover:opacity-75 transition">
+                                                                    <button type="submit" class="flex items-start gap-2 text-left text-xs hover:opacity-75 transition w-full">
                                                                         <span class="shrink-0 mt-0.5 inline-flex items-center justify-center h-4 w-4 rounded border {{ $item->is_complete ? 'bg-emerald-500 border-emerald-500 text-white' : 'border-gray-300 bg-white' }}">
-                                                                            @if ($item->is_complete)<x-icon name="check-circle" class="h-4 w-4 text-emerald-600" />@endif
+                                                                            @if ($item->is_complete)<x-icon name="check-circle" class="h-4 w-4 text-white" />@endif
                                                                         </span>
                                                                         <span class="{{ $item->is_complete ? 'text-gray-400 line-through' : 'text-gray-700' }}">{{ $item->title }}</span>
                                                                     </button>
                                                                 </form>
+                                                                @if ($item->file_path)
+                                                                    <div class="mt-1 ml-6 flex items-center justify-between text-[11px] text-gray-500">
+                                                                        <span class="truncate max-w-[120px]" title="{{ $item->file_name }}">📎 {{ $item->file_name }}</span>
+                                                                        <a href="{{ route('hr.interns.checklist.download', $item) }}" class="text-primary-600 hover:underline font-semibold shrink-0">Download</a>
+                                                                    </div>
+                                                                @endif
                                                             </li>
                                                         @endforeach
                                                     </ul>
