@@ -57,8 +57,56 @@
                             <p class="text-xs text-gray-500 mt-0.5">
                                 {{ $d['student_name'] }} applied for {{ $d['job_title'] }}
                             </p>
+                        @elseif ($notification->type === \App\Notifications\DtrStatusChangedNotification::class)
+                            @php $d = $notification->data; @endphp
+                            <p class="font-medium text-gray-900">
+                                @if ($d['status'] === 'disputed')
+                                    ⚠️ DTR Disputed ({{ $d['date'] }})
+                                @elseif ($d['status'] === 'verified')
+                                    ✅ DTR Hours Verified ({{ $d['date'] }})
+                                @else
+                                    DTR Status Updated ({{ $d['date'] }})
+                                @endif
+                            </p>
+                            <p class="text-xs text-gray-500 mt-0.5">
+                                @if (auth()->user()->isCoordinator())
+                                    {{ $d['student_name'] }} · {{ $d['hours'] }} hrs · {{ $d['status'] }}
+                                @else
+                                    {{ $d['hours'] }} hrs · marked as {{ $d['status'] }}
+                                @endif
+                                @if ($d['remarks'])
+                                    · Reason: "{{ \Illuminate\Support\Str::limit($d['remarks'], 45) }}"
+                                @endif
+                            </p>
+                        @elseif ($notification->type === \App\Notifications\ChecklistItemStatusChangedNotification::class)
+                            @php $d = $notification->data; @endphp
+                            <p class="font-medium text-gray-900">
+                                @if ($d['is_complete'])
+                                    ✅ Requirement Approved
+                                @else
+                                    Requirement Reopened
+                                @endif
+                            </p>
+                            <p class="text-xs text-gray-500 mt-0.5">
+                                {{ $d['company_name'] }} {{ $d['is_complete'] ? 'verified' : 'reopened' }}: "{{ $d['title'] }}"
+                            </p>
+                        @elseif ($notification->type === \App\Notifications\ChecklistDocumentUploadedNotification::class)
+                            @php $d = $notification->data; @endphp
+                            <p class="font-medium text-gray-900">📄 Requirement Uploaded</p>
+                            <p class="text-xs text-gray-500 mt-0.5">
+                                {{ $d['student_name'] }} submitted "{{ $d['title'] }}"
+                            </p>
+                        @elseif ($notification->type === \App\Notifications\StudentEndorsedNotification::class)
+                            @php $d = $notification->data; @endphp
+                            <p class="font-medium text-gray-900">🌟 Company Endorsement</p>
+                            <p class="text-xs text-gray-500 mt-0.5">
+                                Endorsed to {{ $d['company_name'] }} by your coordinator
+                                @if ($d['endorsement_note'])
+                                    · "{{ \Illuminate\Support\Str::limit($d['endorsement_note'], 40) }}"
+                                @endif
+                            </p>
                         @else
-                            <p class="font-medium text-gray-900">{{ $notification->type }}</p>
+                            <p class="font-medium text-gray-900">{{ class_basename($notification->type) }}</p>
                         @endif
                         <p class="text-[10px] text-gray-400 mt-1">{{ $notification->created_at->diffForHumans() }}</p>
                     </a>

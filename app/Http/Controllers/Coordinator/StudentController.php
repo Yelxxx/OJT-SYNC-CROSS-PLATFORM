@@ -5,6 +5,7 @@ namespace App\Http\Controllers\Coordinator;
 use App\Http\Controllers\Controller;
 use App\Models\Company;
 use App\Models\Student;
+use App\Notifications\StudentEndorsedNotification;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
@@ -42,7 +43,16 @@ class StudentController extends Controller
 
         $student->update($updateData);
 
-        $companyName = $targetCompanyId ? Company::find($targetCompanyId)?->name : null;
+        $targetCompany = $targetCompanyId ? Company::find($targetCompanyId) : null;
+        if ($targetCompany && $student->user) {
+            $student->user->notify(new StudentEndorsedNotification(
+                student: $student,
+                company: $targetCompany,
+                endorsementNote: $updateData['endorsement_note'] ?? null
+            ));
+        }
+
+        $companyName = $targetCompany?->name;
         $message = $companyName
             ? "Student successfully endorsed to {$companyName} with priority recommendation."
             : "Student recommendation cleared.";

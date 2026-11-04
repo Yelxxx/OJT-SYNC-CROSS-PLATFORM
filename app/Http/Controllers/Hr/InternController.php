@@ -8,6 +8,7 @@ use App\Models\Evaluation;
 use App\Models\InternChecklistItem;
 use App\Models\JobPosting;
 use App\Models\Student;
+use App\Notifications\ChecklistItemStatusChangedNotification;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
@@ -80,6 +81,14 @@ class InternController extends Controller
             'is_complete' => ! $checklistItem->is_complete,
             'completed_at' => ! $checklistItem->is_complete ? now() : null,
         ]);
+
+        $studentUser = $checklistItem->student->user;
+        if ($studentUser) {
+            $studentUser->notify(new ChecklistItemStatusChangedNotification(
+                item: $checklistItem,
+                companyName: Auth::user()->company->name ?? 'Company HR'
+            ));
+        }
 
         return back()->with('status', $checklistItem->is_complete
             ? '"'.$checklistItem->title.'" marked complete.'

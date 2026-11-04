@@ -67,3 +67,4 @@ test_diag.svg
 *.pdf
 /PROJECT_DFD*
 /OJT_SYNC_*
+/docs/

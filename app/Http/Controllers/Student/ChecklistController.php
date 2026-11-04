@@ -4,6 +4,8 @@ namespace App\Http\Controllers\Student;
 
 use App\Http\Controllers\Controller;
 use App\Models\InternChecklistItem;
+use App\Models\User;
+use App\Notifications\ChecklistDocumentUploadedNotification;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
@@ -57,6 +59,17 @@ class ChecklistController extends Controller
             'submitted_at' => now(),
             'notes' => $validated['notes'] ?? $item->notes,
         ]);
+
+        // Notify Company HR users
+        if ($student->company_id) {
+            $hrUsers = User::where('company_id', $student->company_id)->get();
+            foreach ($hrUsers as $hrUser) {
+                $hrUser->notify(new ChecklistDocumentUploadedNotification(
+                    item: $item,
+                    studentName: Auth::user()->name
+                ));
+            }
+        }
 
         return back()->with('status', "Document '{$fileName}' uploaded successfully.");
     }

@@ -4,6 +4,7 @@ namespace App\Http\Controllers\Hr;
 
 use App\Http\Controllers\Controller;
 use App\Models\DtrEntry;
+use App\Notifications\DtrStatusChangedNotification;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
@@ -62,6 +63,29 @@ class DtrVerificationController extends Controller
         }
 
         $entry->update($updateData);
+
+        // Notify student (and coordinator if disputed)
+        $studentUser = $entry->student->user;
+        $companyName = Auth::user()->company->name ?? 'Company HR';
+
+        if ($studentUser) {
+            $studentUser->notify(new DtrStatusChangedNotification(
+                entry: $entry,
+                status: $validated['status'],
+                remarks: $updateData['dispute_reason'] ?? null,
+                actorName: $companyName
+            ));
+        }
+
+        if ($validated['status'] === DtrEntry::VERIFICATION_DISPUTED && $entry->student->coordinator_id) {
+            $coordinatorUser = \App\Models\User::find($entry->student->coordinator_id);
+            $coordinatorUser?->notify(new DtrStatusChangedNotification(
+                entry: $entry,
+                status: $validated['status'],
+                remarks: $updateData['dispute_reason'] ?? null,
+                actorName: $companyName
+            ));
+        }
 
         $message = match ($validated['status']) {
             DtrEntry::VERIFICATION_VERIFIED => 'Hours verified.',
