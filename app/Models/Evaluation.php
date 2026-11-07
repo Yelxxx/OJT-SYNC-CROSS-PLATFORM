@@ -12,6 +12,9 @@ class Evaluation extends Model
         'job_posting_id',
         'token',
         'token_used',
+        'supervisor_name',
+        'supervisor_email',
+        'invitation_sent_at',
         'punctuality',
         'quality_of_work',
         'initiative',
@@ -23,6 +26,7 @@ class Evaluation extends Model
 
     protected $casts = [
         'token_used' => 'boolean',
+        'invitation_sent_at' => 'datetime',
         'punctuality' => 'integer',
         'quality_of_work' => 'integer',
         'initiative' => 'integer',

@@ -3,11 +3,13 @@
 namespace App\Http\Controllers\Hr;
 
 use App\Http\Controllers\Controller;
+use App\Mail\SupervisorEvaluationInvitationMail;
 use App\Models\Application;
 use App\Models\Evaluation;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Mail;
 use Illuminate\Support\Str;
 use Illuminate\View\View;
 
@@ -89,6 +91,58 @@ class EvaluationController extends Controller
 
         return view('hr.evaluations.show', [
             'evaluation' => $evaluation->load('student.user', 'jobPosting'),
+        ]);
+    }
+
+    public function sendInvitation(Request $request, Evaluation $evaluation): RedirectResponse
+    {
+        abort_if(
+            $evaluation->jobPosting->company_id !== Auth::user()->company_id,
+            403,
+            'This evaluation belongs to another company.',
+        );
+
+        $validated = $request->validate([
+            'supervisor_name' => ['required', 'string', 'max:255'],
+            'supervisor_email' => ['required', 'email', 'max:255'],
+            'custom_note' => ['nullable', 'string', 'max:1000'],
+        ]);
+
+        $evaluation->update([
+            'supervisor_name' => $validated['supervisor_name'],
+            'supervisor_email' => $validated['supervisor_email'],
+            'invitation_sent_at' => now(),
+        ]);
+
+        try {
+            Mail::to($validated['supervisor_email'])->send(
+                new SupervisorEvaluationInvitationMail(
+                    evaluation: $evaluation->load('student.user', 'jobPosting.company'),
+                    customNote: $validated['custom_note'] ?? null
+                )
+            );
+            $message = "Evaluation invitation successfully sent to {$validated['supervisor_email']}.";
+        } catch (\Throwable $e) {
+            $message = "Saved supervisor details, but mail delivery failed. You can copy and share the link directly.";
+        }
+
+        return back()->with('status', $message);
+    }
+
+    public function print(Evaluation $evaluation): View
+    {
+        abort_if(
+            $evaluation->jobPosting->company_id !== Auth::user()->company_id,
+            403,
+            'This evaluation belongs to another company.',
+        );
+
+        abort_unless($evaluation->isComplete(), 404, 'This evaluation has not been completed yet.');
+
+        return view('evaluations.print', [
+            'evaluation' => $evaluation->load('student.user', 'jobPosting.company'),
+            'student' => $evaluation->student,
+            'company' => $evaluation->jobPosting?->company,
         ]);
     }
 }

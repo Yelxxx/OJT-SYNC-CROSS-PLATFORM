@@ -112,6 +112,7 @@ Route::middleware(['auth', 'verified', 'role:coordinator'])
         Route::get('/dtr/students/{student}/print', [CoordinatorDtrController::class, 'print'])->name('dtr.print');
         Route::get('/journals', [CoordinatorJournalController::class, 'index'])->name('journals.index');
         Route::get('/evaluations', [CoordinatorEvaluationController::class, 'index'])->name('evaluations.index');
+        Route::get('/evaluations/{evaluation}/print', [CoordinatorEvaluationController::class, 'print'])->name('evaluations.print');
         Route::patch('/students/{student}', [CoordinatorStudentController::class, 'update'])->name('students.update');
     });
 
@@ -139,6 +140,8 @@ Route::middleware(['auth', 'verified', 'role:hr'])
         Route::get('/evaluations/create', [HrEvaluationController::class, 'create'])->name('evaluations.create');
         Route::post('/evaluations', [HrEvaluationController::class, 'store'])->name('evaluations.store');
         Route::get('/evaluations/{evaluation}', [HrEvaluationController::class, 'show'])->name('evaluations.show');
+        Route::post('/evaluations/{evaluation}/send-invitation', [HrEvaluationController::class, 'sendInvitation'])->name('evaluations.send-invitation');
+        Route::get('/evaluations/{evaluation}/print', [HrEvaluationController::class, 'print'])->name('evaluations.print');
     });
 
 Route::middleware(['auth', 'verified', 'role:admin'])

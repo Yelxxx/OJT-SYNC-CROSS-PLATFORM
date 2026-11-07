@@ -25,4 +25,21 @@ class EvaluationController extends Controller
             'q' => $request->input('q'),
         ]);
     }
+
+    public function print(Request $request, Evaluation $evaluation): View
+    {
+        abort_if(
+            $evaluation->student->coordinator_id !== $request->user()->id,
+            403,
+            'This evaluation belongs to a student not assigned to you.',
+        );
+
+        abort_unless($evaluation->isComplete(), 404, 'This evaluation has not been completed yet.');
+
+        return view('evaluations.print', [
+            'evaluation' => $evaluation->load('student.user', 'jobPosting.company'),
+            'student' => $evaluation->student,
+            'company' => $evaluation->jobPosting?->company,
+        ]);
+    }
 }

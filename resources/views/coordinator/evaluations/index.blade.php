@@ -38,6 +38,7 @@
                                     <th class="px-4 py-3">Status</th>
                                     <th class="px-4 py-3">Score</th>
                                     <th class="px-4 py-3">Submitted</th>
+                                    <th class="px-4 py-3 text-right">Action</th>
                                 </tr>
                             </thead>
                             <tbody class="divide-y divide-gray-100">
@@ -55,6 +56,17 @@
                                         </td>
                                         <td class="px-4 py-3 font-semibold text-primary-700">{{ $evaluation->overall_score ?? '—' }} / 5</td>
                                         <td class="px-4 py-3 text-gray-500">{{ $evaluation->submitted_at?->format('M d, Y') ?? '—' }}</td>
+                                        <td class="px-4 py-3 text-right">
+                                            @if ($evaluation->isComplete())
+                                                <a href="{{ route('coordinator.evaluations.print', $evaluation) }}" target="_blank"
+                                                   class="inline-flex items-center gap-1 text-xs font-semibold text-primary-600 hover:text-primary-800">
+                                                    <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 17h2a2 2 0 002-2v-4a2 2 0 00-2-2H5a2 2 0 00-2 2v4a2 2 0 002 2h2m2 4h6a2 2 0 002-2v-4a2 2 0 00-2-2H9a2 2 0 00-2 2v4a2 2 0 002 2zm8-12V5a2 2 0 00-2-2H9a2 2 0 00-2 2v4h10z"/></svg>
+                                                    Print Rubric
+                                                </a>
+                                            @else
+                                                <span class="text-xs text-gray-400">Awaiting Fill</span>
+                                            @endif
+                                        </td>
                                     </tr>
                                 @endforeach
                             </tbody>

@@ -66,5 +66,7 @@ test_diag.svg
 *.drawio.dtmp
 *.pdf
 /PROJECT_DFD*
+/PROJECT_CONTEXT_DIAGRAM*
+/PROJECT_USE_CASE_DIAGRAM*
 /OJT_SYNC_*
 /docs/
