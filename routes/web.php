@@ -15,6 +15,7 @@ use App\Http\Controllers\Hr\DtrVerificationController as HrDtrVerificationContro
 use App\Http\Controllers\Hr\EvaluationController as HrEvaluationController;
 use App\Http\Controllers\Hr\InternController as HrInternController;
 use App\Http\Controllers\Hr\JobController as HrJobController;
+use App\Http\Controllers\Hr\LeaveController as HrLeaveController;
 use App\Http\Controllers\NotificationController;
 use App\Http\Controllers\ProfileController;
 use App\Http\Controllers\ResumeController;
@@ -25,6 +26,7 @@ use App\Http\Controllers\Student\DashboardController as StudentDashboardControll
 use App\Http\Controllers\Student\DtrController as StudentDtrController;
 use App\Http\Controllers\Student\JobController as StudentJobController;
 use App\Http\Controllers\Student\JournalController as StudentJournalController;
+use App\Http\Controllers\Student\LeaveController as StudentLeaveController;
 use Illuminate\Support\Facades\Route;
 
 Route::get('/', function () {
@@ -96,6 +98,9 @@ Route::middleware(['auth', 'verified', 'role:student'])
             Route::get('/checklist', [StudentChecklistController::class, 'index'])->name('checklist.index');
             Route::post('/checklist/{item}/upload', [StudentChecklistController::class, 'upload'])->name('checklist.upload');
             Route::get('/checklist/{item}/download', [StudentChecklistController::class, 'download'])->name('checklist.download');
+            Route::get('/leaves', [StudentLeaveController::class, 'index'])->name('leaves.index');
+            Route::post('/leaves', [StudentLeaveController::class, 'store'])->name('leaves.store');
+            Route::get('/leaves/{leave}/download', [StudentLeaveController::class, 'download'])->name('leaves.download');
         });
         Route::get('/journals', [StudentJournalController::class, 'index'])->name('journals.index');
         Route::get('/journals/create', [StudentJournalController::class, 'create'])->name('journals.create');
@@ -122,6 +127,10 @@ Route::middleware(['auth', 'verified', 'role:hr'])
     ->group(function () {
         Route::get('/dashboard', [HrDashboardController::class, 'index'])->name('dashboard');
         Route::get('/interns', [HrInternController::class, 'index'])->name('interns.index');
+        Route::get('/leaves', [HrLeaveController::class, 'index'])->name('leaves.index');
+        Route::post('/leaves/{leave}/approve', [HrLeaveController::class, 'approve'])->name('leaves.approve');
+        Route::post('/leaves/{leave}/reject', [HrLeaveController::class, 'reject'])->name('leaves.reject');
+        Route::get('/leaves/{leave}/download', [HrLeaveController::class, 'download'])->name('leaves.download');
         Route::get('/interns/checklist/{checklistItem}/toggle', [HrInternController::class, 'toggleChecklistItem'])->name('interns.checklist.toggle');
         Route::get('/interns/checklist/{checklistItem}/download', [HrInternController::class, 'downloadChecklistDocument'])->name('interns.checklist.download');
         Route::post('/interns/{student}/checklist', [HrInternController::class, 'addChecklistItem'])->name('interns.checklist.add');

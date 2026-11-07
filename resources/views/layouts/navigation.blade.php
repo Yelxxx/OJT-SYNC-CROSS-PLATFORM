@@ -31,6 +31,9 @@
                                 <x-nav-link :href="route('student.checklist.index')" :active="request()->routeIs('student.checklist.*')">
                                     {{ __('Requirements') }}
                                 </x-nav-link>
+                                <x-nav-link :href="route('student.leaves.index')" :active="request()->routeIs('student.leaves.*')">
+                                    {{ __('Leaves') }}
+                                </x-nav-link>
                             @endif
                             <x-nav-link :href="route('student.journals.index')" :active="request()->routeIs('student.journals.*')">
                                 {{ __('E-Journals') }}
@@ -54,6 +57,9 @@
                             </x-nav-link>
                             <x-nav-link :href="route('hr.interns.index')" :active="request()->routeIs('hr.interns.*')">
                                 {{ __('My Interns') }}
+                            </x-nav-link>
+                            <x-nav-link :href="route('hr.leaves.index')" :active="request()->routeIs('hr.leaves.*')">
+                                {{ __('Leaves') }}
                             </x-nav-link>
                             <x-nav-link :href="route('hr.dtr.index')" :active="request()->routeIs('hr.dtr.*')">
                                 {{ __('Time Records') }}

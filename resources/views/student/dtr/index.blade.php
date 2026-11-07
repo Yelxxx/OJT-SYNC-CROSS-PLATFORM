@@ -129,7 +129,15 @@
                                             <td class="px-4 py-3 text-gray-700 whitespace-nowrap">{{ $entry->date->format('M d, Y') }}</td>
                                             <td class="px-4 py-3 text-gray-600 whitespace-nowrap">{{ $entry->time_in->format('g:i A') }}</td>
                                             <td class="px-4 py-3 text-gray-600 whitespace-nowrap">{{ $entry->time_out?->format('g:i A') ?? '—' }}</td>
-                                            <td class="px-4 py-3 font-medium text-gray-900">{{ number_format($entry->hours, 2) }}</td>
+                                            <td class="px-4 py-3 whitespace-nowrap">
+                                                <span class="font-medium text-gray-900">{{ number_format($entry->hours, 2) }}</span>
+                                                @if ($entry->break_deducted)
+                                                    <span class="block text-[10px] text-gray-400 font-normal">(-1h lunch break)</span>
+                                                @endif
+                                                @if ($entry->is_auto_closed)
+                                                    <span class="inline-block text-[10px] text-amber-600 bg-amber-50 px-1 rounded font-medium">auto-closed</span>
+                                                @endif
+                                            </td>
                                             <td class="px-4 py-3 whitespace-nowrap">
                                                 @if ($entry->verification_status === \App\Models\DtrEntry::VERIFICATION_VERIFIED)
                                                     <span class="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-xs font-semibold bg-emerald-100 text-emerald-700 ring-1 ring-inset ring-emerald-200"><x-icon name="check-circle" class="h-3 w-3" /> Verified</span>

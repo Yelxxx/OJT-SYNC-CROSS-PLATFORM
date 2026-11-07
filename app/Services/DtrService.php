@@ -26,8 +26,32 @@ class DtrService
         }
 
         return DB::transaction(function () use ($student) {
-            if ($student->dtrEntries()->whereNull('time_out')->exists()) {
-                throw new DomainActionException('already_active', 'You already have an active time-in. Please time out first.', 409);
+            $activeEntry = $student->dtrEntries()
+                ->whereNull('time_out')
+                ->latest('time_in')
+                ->lockForUpdate()
+                ->first();
+
+            // Auto-recovery: If active shift is from a previous calendar day or older than 14 hours,
+            // auto-close it with standard shift hours instead of bricking check-in.
+            if ($activeEntry) {
+                $hoursDiff = now()->diffInHours($activeEntry->time_in);
+                $isDifferentDay = $activeEntry->date->isBefore(now()->toDateString());
+
+                if ($isDifferentDay || $hoursDiff >= 14) {
+                    // Auto-close: capped at 8 working hours (e.g. 8h shift + 1h lunch)
+                    $autoTimeOut = $activeEntry->time_in->copy()->addHours(9);
+                    $activeEntry->update([
+                        'time_out' => $autoTimeOut,
+                        'hours' => 8.00,
+                        'break_deducted' => true,
+                        'is_auto_closed' => true,
+                        'verification_status' => DtrEntry::VERIFICATION_UNVERIFIED,
+                        'dispute_reason' => 'Auto-closed by system due to missing time-out. Pending HR verification.',
+                    ]);
+                } else {
+                    throw new DomainActionException('already_active', 'You already have an active time-in. Please time out first.', 409);
+                }
             }
 
             return DtrEntry::create([
@@ -66,9 +90,22 @@ class DtrService
                 throw new DomainActionException('invalid_time_out', 'A single shift cannot exceed 24 hours. Ask your coordinator to fix this entry.', 422);
             }
 
+            $rawSeconds = abs($timeOut->diffInSeconds($entry->time_in));
+            $grossHours = $rawSeconds / 3600;
+
+            // Smart Shift Rule: Mandatory 1-hour unpaid lunch break deduction for shifts >= 5 hours
+            $breakDeducted = false;
+            if ($grossHours >= 5.0) {
+                $netHours = max(4.0, $grossHours - 1.0);
+                $breakDeducted = true;
+            } else {
+                $netHours = $grossHours;
+            }
+
             $entry->update([
                 'time_out' => $timeOut,
-                'hours' => round(abs($timeOut->diffInSeconds($entry->time_in)) / 3600, 2),
+                'hours' => round($netHours, 2),
+                'break_deducted' => $breakDeducted,
                 'task_summary' => $taskSummary ?? $entry->task_summary,
             ]);
 

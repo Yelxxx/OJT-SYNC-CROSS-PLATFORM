@@ -90,6 +90,11 @@ class Student extends Model
         return $this->hasMany(InternChecklistItem::class);
     }
 
+    public function leaves(): HasMany
+    {
+        return $this->hasMany(InternLeave::class);
+    }
+
     /**
      * Eager-load the summed completed hours into a `total_hours` attribute.
      */

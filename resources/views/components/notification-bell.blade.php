@@ -105,6 +105,27 @@
                                     · "{{ \Illuminate\Support\Str::limit($d['endorsement_note'], 40) }}"
                                 @endif
                             </p>
+                        @elseif ($notification->type === \App\Notifications\LeaveStatusChangedNotification::class)
+                            @php $d = $notification->data; @endphp
+                            <p class="font-medium text-gray-900">
+                                @if ($d['status'] === 'approved')
+                                    ✅ Leave Request Approved
+                                @else
+                                    ❌ Leave Request Rejected
+                                @endif
+                            </p>
+                            <p class="text-xs text-gray-500 mt-0.5">
+                                {{ $d['leave_type'] }} ({{ $d['start_date'] }}) · {{ $d['status'] }}
+                                @if ($d['rejection_reason'])
+                                    · "{{ \Illuminate\Support\Str::limit($d['rejection_reason'], 35) }}"
+                                @endif
+                            </p>
+                        @elseif ($notification->type === \App\Notifications\NewLeaveRequestNotification::class)
+                            @php $d = $notification->data; @endphp
+                            <p class="font-medium text-gray-900">🩹 New Leave Request Filed</p>
+                            <p class="text-xs text-gray-500 mt-0.5">
+                                {{ $d['student_name'] }} filed {{ $d['leave_type'] }} ({{ $d['start_date'] }})
+                            </p>
                         @else
                             <p class="font-medium text-gray-900">{{ class_basename($notification->type) }}</p>
                         @endif

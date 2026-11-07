@@ -13,6 +13,8 @@ class DtrEntry extends Model
         'time_in',
         'time_out',
         'hours',
+        'break_deducted',
+        'is_auto_closed',
         'task_summary',
         'checkin_method',
         'verification_status',
@@ -26,6 +28,8 @@ class DtrEntry extends Model
         'time_in' => 'datetime',
         'time_out' => 'datetime',
         'hours' => 'decimal:2',
+        'break_deducted' => 'boolean',
+        'is_auto_closed' => 'boolean',
         'verified_at' => 'datetime',
     ];
 
