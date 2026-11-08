@@ -18,7 +18,14 @@
                             <div class="border border-primary-100 rounded-lg p-4">
                                 <div class="flex flex-wrap items-start justify-between gap-3">
                                     <div class="min-w-0">
-                                        <p class="font-semibold text-gray-900">{{ $company->name }}</p>
+                                        <div class="flex items-center gap-2">
+                                            <p class="font-semibold text-gray-900">{{ $company->name }}</p>
+                                            @if ($company->industry)
+                                                <span class="inline-flex items-center px-2 py-0.5 rounded text-[11px] font-semibold bg-primary-50 text-primary-800 border border-primary-200">
+                                                    {{ \App\Constants\CompanyIndustry::college($company->industry) }}
+                                                </span>
+                                            @endif
+                                        </div>
                                         <p class="mt-0.5 text-sm text-gray-500">
                                             {{ $company->contact_person }}
                                             · {{ $company->contact_email }}

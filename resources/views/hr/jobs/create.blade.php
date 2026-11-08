@@ -35,8 +35,12 @@
                         </div>
 
                         {{-- Target Academic Programs Selection --}}
+                        @php
+                            $presetPrograms = old('eligible_programs', $defaultPrograms ?? []);
+                            $isOpenToAll = in_array('ALL', $presetPrograms);
+                        @endphp
                         <div class="p-4 bg-gray-50 border border-gray-200 rounded-lg space-y-3" x-data="{
-                            openToAll: {{ old('eligible_programs') && in_array('ALL', old('eligible_programs', [])) ? 'true' : 'false' }},
+                            openToAll: {{ $isOpenToAll ? 'true' : 'false' }},
                             toggleAll(e) {
                                 this.openToAll = e.target.checked;
                             }
@@ -44,7 +48,13 @@
                             <div class="flex items-center justify-between">
                                 <div>
                                     <h4 class="text-sm font-bold text-gray-900">Target College Programs / Courses</h4>
-                                    <p class="text-xs text-gray-500">Only students from selected programs will see this opening in their feed.</p>
+                                    <p class="text-xs text-gray-500">
+                                        @if ($company?->industry)
+                                            Pre-selected based on your registered sector: <span class="font-semibold text-primary-700">{{ \App\Constants\CompanyIndustry::college($company->industry) }}</span>
+                                        @else
+                                            Only students from selected programs will see this opening in their feed.
+                                        @endif
+                                    </p>
                                 </div>
                                 <label class="inline-flex items-center gap-1.5 cursor-pointer">
                                     <input type="checkbox" name="eligible_programs[]" value="ALL" @change="toggleAll($event)" :checked="openToAll"
@@ -62,7 +72,7 @@
                                                 @foreach ($programs as $code => $label)
                                                     <label class="inline-flex items-center gap-2 text-xs text-gray-700 hover:text-gray-900 cursor-pointer">
                                                         <input type="checkbox" name="eligible_programs[]" value="{{ $code }}"
-                                                               @checked(is_array(old('eligible_programs')) && in_array($code, old('eligible_programs')))
+                                                               @checked(is_array($presetPrograms) && in_array($code, $presetPrograms))
                                                                class="rounded border-gray-300 text-primary-600 focus:ring-primary-500">
                                                         <span>{{ $label }}</span>
                                                     </label>

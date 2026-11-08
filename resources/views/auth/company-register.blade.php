@@ -22,9 +22,25 @@
 
         <!-- Company Name -->
         <div class="mt-3">
-            <x-input-label for="company_name" :value="__('Company Name')" />
-            <x-text-input id="company_name" class="block mt-1 w-full" type="text" name="company_name" :value="old('company_name')" required autofocus placeholder="e.g. Microsoft" />
+            <x-input-label for="company_name" :value="__('Company / Establishment Name')" />
+            <x-text-input id="company_name" class="block mt-1 w-full" type="text" name="company_name" :value="old('company_name')" required autofocus placeholder="e.g. Grand Palace Hotel & Restaurant" />
             <x-input-error :messages="$errors->get('company_name')" class="mt-2" />
+        </div>
+
+        <!-- Industry / Field Sector -->
+        <div class="mt-4">
+            <x-input-label for="industry" :value="__('Industry Sector & Primary Field')" />
+            <select id="industry" name="industry" required
+                    class="mt-1 block w-full text-sm border-gray-300 focus:border-primary-500 focus:ring-primary-500 rounded-md shadow-sm">
+                <option value="">Select industry sector...</option>
+                @foreach (\App\Constants\CompanyIndustry::all() as $key => $info)
+                    <option value="{{ $key }}" @selected(old('industry') === $key)>
+                        {{ $info['label'] }} (Accommodates {{ $info['college'] }})
+                    </option>
+                @endforeach
+            </select>
+            <p class="text-xs text-gray-500 mt-1">This helps match your internship vacancies directly to students in related university degree programs.</p>
+            <x-input-error :messages="$errors->get('industry')" class="mt-2" />
         </div>
 
         <!-- Company Address -->

@@ -36,6 +36,21 @@
                     </div>
 
                     <div>
+                        <x-input-label for="industry" :value="__('Industry Sector & Primary Field')" />
+                        <select id="industry" name="industry"
+                                class="mt-1 block w-full text-sm border-gray-300 focus:border-primary-500 focus:ring-primary-500 rounded-md shadow-sm">
+                            <option value="">Select industry sector...</option>
+                            @foreach (\App\Constants\CompanyIndustry::all() as $key => $info)
+                                <option value="{{ $key }}" @selected(old('industry', $company->industry) === $key)>
+                                    {{ $info['label'] }} ({{ $info['college'] }})
+                                </option>
+                            @endforeach
+                        </select>
+                        <p class="text-xs text-gray-500 mt-1">Controls the default academic programs targeted when your company posts new internships.</p>
+                        @error('industry') <p class="text-xs text-red-600 mt-1">{{ $message }}</p> @enderror
+                    </div>
+
+                    <div>
                         <x-input-label for="address" :value="__('Address')" />
                         <x-text-input id="address" name="address" type="text" :value="old('address', $company->address)" class="mt-1 block w-full" />
                         @error('address') <p class="text-xs text-red-600 mt-1">{{ $message }}</p> @enderror

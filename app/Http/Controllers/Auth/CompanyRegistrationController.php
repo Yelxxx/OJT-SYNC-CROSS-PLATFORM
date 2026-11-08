@@ -24,6 +24,7 @@ class CompanyRegistrationController extends Controller
         $validated = $request->validate([
             // Company details
             'company_name' => ['required', 'string', 'max:255', 'unique:'.Company::class.',name'],
+            'industry' => ['required', 'string', 'in:'.implode(',', array_keys(\App\Constants\CompanyIndustry::all()))],
             'company_address' => ['required', 'string', 'max:500'],
             'company_phone' => ['nullable', 'string', 'max:50'],
             'company_website' => ['nullable', 'string', 'max:255'],
@@ -39,6 +40,7 @@ class CompanyRegistrationController extends Controller
         $company = DB::transaction(function () use ($validated): Company {
             $company = Company::create([
                 'name' => $validated['company_name'],
+                'industry' => $validated['industry'],
                 'address' => $validated['company_address'],
                 'contact_person' => $validated['contact_person'],
                 'contact_email' => $validated['email'],

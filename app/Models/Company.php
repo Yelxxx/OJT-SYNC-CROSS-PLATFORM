@@ -35,6 +35,7 @@ class Company extends Model
 
     protected $fillable = [
         'name',
+        'industry',
         'logo_path',
         'address',
         'latitude',

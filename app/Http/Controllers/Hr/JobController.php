@@ -32,7 +32,13 @@ class JobController extends Controller
 
     public function create(): View
     {
-        return view('hr.jobs.create');
+        $company = Auth::user()->company;
+        $defaultPrograms = \App\Constants\CompanyIndustry::defaultPrograms($company?->industry);
+
+        return view('hr.jobs.create', [
+            'company' => $company,
+            'defaultPrograms' => $defaultPrograms,
+        ]);
     }
 
     public function store(Request $request): RedirectResponse
