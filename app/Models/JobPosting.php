@@ -28,6 +28,7 @@ class JobPosting extends Model
         'description',
         'requirements',
         'eligible_programs',
+        'skills',
         'slots',
         'applications_count',
         'status',
@@ -37,6 +38,7 @@ class JobPosting extends Model
         'slots' => 'integer',
         'applications_count' => 'integer',
         'eligible_programs' => 'array',
+        'skills' => 'array',
     ];
 
     /**

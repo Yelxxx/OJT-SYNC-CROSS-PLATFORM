@@ -27,6 +27,7 @@ use App\Http\Controllers\Student\DtrController as StudentDtrController;
 use App\Http\Controllers\Student\JobController as StudentJobController;
 use App\Http\Controllers\Student\JournalController as StudentJournalController;
 use App\Http\Controllers\Student\LeaveController as StudentLeaveController;
+use App\Http\Controllers\Student\PortfolioController as StudentPortfolioController;
 use Illuminate\Support\Facades\Route;
 
 Route::get('/', function () {
@@ -101,6 +102,8 @@ Route::middleware(['auth', 'verified', 'role:student'])
             Route::get('/leaves', [StudentLeaveController::class, 'index'])->name('leaves.index');
             Route::post('/leaves', [StudentLeaveController::class, 'store'])->name('leaves.store');
             Route::get('/leaves/{leave}/download', [StudentLeaveController::class, 'download'])->name('leaves.download');
+            Route::get('/portfolio', [StudentPortfolioController::class, 'index'])->name('portfolio.index');
+            Route::get('/portfolio/print', [StudentPortfolioController::class, 'print'])->name('portfolio.print');
         });
         Route::get('/journals', [StudentJournalController::class, 'index'])->name('journals.index');
         Route::get('/journals/create', [StudentJournalController::class, 'create'])->name('journals.create');

@@ -125,4 +125,61 @@ class Student extends Model
 
         return (int) round(($this->totalHours() / $target) * 100);
     }
+
+    /**
+     * Active/hired application for this student.
+     */
+    public function hiredApplication(): ?Application
+    {
+        return $this->applications()
+            ->hired()
+            ->with('jobPosting.company')
+            ->latest('applied_at')
+            ->first();
+    }
+
+    /**
+     * Get the student's OJT competencies and verified experience portfolio.
+     */
+    public function competencyPortfolio(): array
+    {
+        $hiredApp = $this->hiredApplication();
+        $job = $hiredApp?->jobPosting;
+        $skills = $job?->skills ?? [];
+
+        // Fallback default competencies if none explicitly tagged
+        if (empty($skills)) {
+            $skills = [
+                'Professional Work Ethics & Punctuality',
+                'Core Departmental Operations',
+                'Business Communication & Team Collaboration',
+                'Task Execution & Problem Solving',
+            ];
+        }
+
+        $verifiedHours = (float) $this->dtrEntries()
+            ->where('verification_status', DtrEntry::VERIFICATION_VERIFIED)
+            ->sum('hours');
+
+        $totalHours = $this->totalHours();
+        $skillCount = max(1, count($skills));
+
+        // Distributed verified hours across competencies
+        $hoursPerSkill = round($verifiedHours / $skillCount, 1);
+
+        // Retrieve latest evaluation if complete
+        $evaluation = $this->evaluations()->where('token_used', true)->latest('submitted_at')->first();
+
+        return [
+            'job' => $job,
+            'company' => $this->company ?? $job?->company,
+            'skills' => $skills,
+            'verifiedHours' => $verifiedHours,
+            'totalHours' => $totalHours,
+            'requiredHours' => $this->required_hours ?? 300,
+            'hoursPerSkill' => $hoursPerSkill,
+            'evaluation' => $evaluation,
+            'completionPercent' => $this->hoursProgressPercent(),
+        ];
+    }
 }

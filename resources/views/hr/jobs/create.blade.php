@@ -75,6 +75,15 @@
                             <x-input-error :messages="$errors->get('eligible_programs')" class="mt-1" />
                         </div>
 
+                        {{-- Core Competencies & Skills Gained --}}
+                        <div>
+                            <x-input-label for="skills_input" :value="__('Core Competencies & Skills Gained (comma-separated)')" />
+                            <x-text-input id="skills_input" class="block mt-1 w-full text-sm" type="text" name="skills_input" :value="old('skills_input')"
+                                          placeholder="e.g. Customer Relations, Opera PMS, Front Desk Operations, Complaint Resolution" />
+                            <p class="text-xs text-gray-400 mt-1">These competencies will form the basis of the intern's verified skills credential upon completing their OJT.</p>
+                            <x-input-error :messages="$errors->get('skills_input')" class="mt-1" />
+                        </div>
+
                         <div class="grid grid-cols-2 gap-4">
                             <div>
                                 <x-input-label for="slots" :value="__('Number of Slots')" />

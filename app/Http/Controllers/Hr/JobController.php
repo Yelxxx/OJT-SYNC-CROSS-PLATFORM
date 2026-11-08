@@ -43,9 +43,14 @@ class JobController extends Controller
             'requirements' => ['nullable', 'string', 'max:5000'],
             'eligible_programs' => ['nullable', 'array'],
             'eligible_programs.*' => ['string'],
+            'skills_input' => ['nullable', 'string', 'max:1000'],
             'slots' => ['required', 'integer', 'min:1', 'max:99'],
             'status' => ['required', 'in:open,closed'],
         ]);
+
+        $skills = ! empty($validated['skills_input'])
+            ? array_values(array_filter(array_map('trim', explode(',', $validated['skills_input']))))
+            : null;
 
         JobPosting::create([
             'company_id' => Auth::user()->company_id,
@@ -53,6 +58,7 @@ class JobController extends Controller
             'description' => $validated['description'],
             'requirements' => $validated['requirements'] ?? null,
             'eligible_programs' => ! empty($validated['eligible_programs']) ? $validated['eligible_programs'] : null,
+            'skills' => $skills,
             'slots' => $validated['slots'],
             'status' => $validated['status'],
         ]);
@@ -79,11 +85,16 @@ class JobController extends Controller
             'requirements' => ['nullable', 'string', 'max:5000'],
             'eligible_programs' => ['nullable', 'array'],
             'eligible_programs.*' => ['string'],
+            'skills_input' => ['nullable', 'string', 'max:1000'],
             'slots' => ['required', 'integer', 'min:1', 'max:99'],
             'status' => ['required', 'in:open,closed'],
         ]);
 
         $validated['eligible_programs'] = ! empty($validated['eligible_programs']) ? $validated['eligible_programs'] : null;
+        $validated['skills'] = ! empty($validated['skills_input'])
+            ? array_values(array_filter(array_map('trim', explode(',', $validated['skills_input']))))
+            : null;
+        unset($validated['skills_input']);
 
         $job->update($validated);
 

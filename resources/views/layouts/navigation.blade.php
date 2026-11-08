@@ -34,6 +34,9 @@
                                 <x-nav-link :href="route('student.leaves.index')" :active="request()->routeIs('student.leaves.*')">
                                     {{ __('Leaves') }}
                                 </x-nav-link>
+                                <x-nav-link :href="route('student.portfolio.index')" :active="request()->routeIs('student.portfolio.*')">
+                                    {{ __('Competencies & Skills') }}
+                                </x-nav-link>
                             @endif
                             <x-nav-link :href="route('student.journals.index')" :active="request()->routeIs('student.journals.*')">
                                 {{ __('E-Journals') }}
