@@ -41,6 +41,8 @@ class JobController extends Controller
             'title' => ['required', 'string', 'max:255'],
             'description' => ['required', 'string', 'max:5000'],
             'requirements' => ['nullable', 'string', 'max:5000'],
+            'eligible_programs' => ['nullable', 'array'],
+            'eligible_programs.*' => ['string'],
             'slots' => ['required', 'integer', 'min:1', 'max:99'],
             'status' => ['required', 'in:open,closed'],
         ]);
@@ -50,6 +52,7 @@ class JobController extends Controller
             'title' => $validated['title'],
             'description' => $validated['description'],
             'requirements' => $validated['requirements'] ?? null,
+            'eligible_programs' => ! empty($validated['eligible_programs']) ? $validated['eligible_programs'] : null,
             'slots' => $validated['slots'],
             'status' => $validated['status'],
         ]);
@@ -74,9 +77,13 @@ class JobController extends Controller
             'title' => ['required', 'string', 'max:255'],
             'description' => ['required', 'string', 'max:5000'],
             'requirements' => ['nullable', 'string', 'max:5000'],
+            'eligible_programs' => ['nullable', 'array'],
+            'eligible_programs.*' => ['string'],
             'slots' => ['required', 'integer', 'min:1', 'max:99'],
             'status' => ['required', 'in:open,closed'],
         ]);
+
+        $validated['eligible_programs'] = ! empty($validated['eligible_programs']) ? $validated['eligible_programs'] : null;
 
         $job->update($validated);
 

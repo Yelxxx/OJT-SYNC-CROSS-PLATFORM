@@ -36,6 +36,23 @@
                         </div>
 
                         <div class="mt-6">
+                            <h3 class="text-sm font-semibold uppercase tracking-wide text-gray-500">Eligible Degree Programs</h3>
+                            <div class="mt-2 flex flex-wrap gap-1.5">
+                                @if (empty($job->eligible_programs) || in_array('ALL', $job->eligible_programs))
+                                    <span class="inline-flex items-center px-3 py-1 rounded-md text-xs font-semibold bg-blue-50 text-blue-700 border border-blue-200">
+                                        🌐 Open to Students of All Academic Programs
+                                    </span>
+                                @else
+                                    @foreach ($job->eligible_programs as $code)
+                                        <span class="inline-flex items-center px-2.5 py-1 rounded-md text-xs font-semibold bg-primary-50 text-primary-800 border border-primary-200">
+                                            {{ \App\Constants\AcademicProgram::label($code) }}
+                                        </span>
+                                    @endforeach
+                                @endif
+                            </div>
+                        </div>
+
+                        <div class="mt-6">
                             <h3 class="text-sm font-semibold uppercase tracking-wide text-gray-500">About the internship</h3>
                             <p class="mt-2 text-gray-700 leading-relaxed whitespace-pre-line">{{ $job->description }}</p>
                         </div>

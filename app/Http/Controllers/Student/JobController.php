@@ -13,11 +13,21 @@ class JobController extends Controller
 {
     public function index(Request $request): View
     {
-        $appliedIds = Auth::user()->studentProfile->applications()->pluck('job_posting_id');
+        $student = Auth::user()->studentProfile;
+        $studentProgram = $student?->program;
+        $appliedIds = $student ? $student->applications()->pluck('job_posting_id') : collect();
 
         $jobs = JobPosting::with('company')
             ->open()
             ->whereNotIn('id', $appliedIds)
+            // Automated Matchmaking: only jobs open to all or matching the student's program
+            ->when($studentProgram, function ($query, $program) {
+                $query->where(function ($q) use ($program) {
+                    $q->whereNull('eligible_programs')
+                        ->orWhereJsonContains('eligible_programs', \App\Constants\AcademicProgram::PROGRAM_ALL)
+                        ->orWhereJsonContains('eligible_programs', $program);
+                });
+            })
             ->when($request->filled('q'), fn ($query) => $query->where(fn ($q) => $q->where('title', 'like', '%'.$request->string('q').'%')->orWhere('description', 'like', '%'.$request->string('q').'%')))
             ->when($request->filled('company'), fn ($query) => $query->where('company_id', $request->integer('company')))
             ->latest()
@@ -26,6 +36,7 @@ class JobController extends Controller
 
         return view('student.jobs.index', [
             'jobs' => $jobs,
+            'studentProgram' => $studentProgram,
             'companies' => Company::where('is_active', true)->orderBy('name')->get(),
             'filters' => [
                 'q' => $request->input('q'),
@@ -38,11 +49,15 @@ class JobController extends Controller
     {
         abort_if($job->status !== 'open', 404);
 
-        $alreadyApplied = Auth::user()
-            ->studentProfile
-            ->applications()
-            ->where('job_posting_id', $job->id)
-            ->exists();
+        $student = Auth::user()->studentProfile;
+        $studentProgram = $student?->program;
+
+        // Auto-check eligibility
+        if (! $job->isEligibleFor($studentProgram)) {
+            abort(403, 'This internship opening is not open to your degree program ('.\App\Constants\AcademicProgram::label($studentProgram).').');
+        }
+
+        $alreadyApplied = $student ? $student->applications()->where('job_posting_id', $job->id)->exists() : false;
 
         return view('student.jobs.show', [
             'job' => $job->load('company'),

@@ -32,14 +32,34 @@
                 </form>
             </div>
 
+            {{-- Course Match Banner --}}
+            @if ($studentProgram)
+                <div class="mb-6 p-4 bg-emerald-50 border border-emerald-200 rounded-xl flex items-center justify-between text-xs">
+                    <div class="flex items-center gap-2">
+                        <span class="inline-flex items-center justify-center h-6 w-6 rounded-full bg-emerald-600 text-white font-bold">
+                            ✓
+                        </span>
+                        <div>
+                            <span class="font-bold text-emerald-900">Personalized Course Match Active:</span>
+                            <span class="text-emerald-700 ml-1">
+                                Showing internships matching <strong>{{ \App\Constants\AcademicProgram::label($studentProgram) }}</strong> (or open to all programs).
+                            </span>
+                        </div>
+                    </div>
+                    <span class="hidden sm:inline-block px-2.5 py-1 bg-white border border-emerald-200 text-emerald-800 rounded font-semibold">
+                        {{ $studentProgram }}
+                    </span>
+                </div>
+            @endif
+
             @if ($jobs->isEmpty())
                 <x-card>
-                    <x-empty-state icon="search" title="No internships found" message="No open internship positions match your search — try different keywords or clear the filters." />
+                    <x-empty-state icon="search" title="No internships found" message="No open internship positions currently match your academic program or search criteria." />
                 </x-card>
             @else
                 <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
                     @foreach ($jobs as $job)
-                        <a href="{{ route('student.jobs.show', $job) }}" class="group bg-white rounded-xl border border-primary-100 shadow-sm overflow-hidden hover:border-primary-300 hover:bg-primary-50/40 hover:shadow-md transition-all duration-200">
+                        <a href="{{ route('student.jobs.show', $job) }}" class="group bg-white rounded-xl border border-primary-100 shadow-sm overflow-hidden hover:border-primary-300 hover:bg-primary-50/40 hover:shadow-md transition-all duration-200 flex flex-col justify-between">
                             <div class="p-6">
                                 <div class="flex items-start justify-between gap-3">
                                     <div class="flex items-center gap-3 min-w-0">
@@ -56,6 +76,24 @@
 
                                 <h3 class="mt-4 text-lg font-semibold text-primary-900 group-hover:text-primary-600 transition">{{ $job->title }}</h3>
                                 <p class="mt-2 text-sm text-gray-600 line-clamp-3">{{ $job->description }}</p>
+
+                                {{-- Eligible Course Badges --}}
+                                <div class="mt-3 flex flex-wrap gap-1">
+                                    @if (empty($job->eligible_programs) || in_array('ALL', $job->eligible_programs))
+                                        <span class="inline-flex items-center px-2 py-0.5 rounded text-[10px] font-semibold bg-blue-50 text-blue-700 border border-blue-200">
+                                            🌐 Open to All Courses
+                                        </span>
+                                    @else
+                                        @foreach (array_slice($job->eligible_programs, 0, 3) as $prog)
+                                            <span class="inline-flex items-center px-1.5 py-0.5 rounded text-[10px] font-semibold {{ $prog === $studentProgram ? 'bg-emerald-100 text-emerald-800 border border-emerald-300' : 'bg-gray-100 text-gray-700' }}">
+                                                {{ $prog }}
+                                            </span>
+                                        @endforeach
+                                        @if (count($job->eligible_programs) > 3)
+                                            <span class="text-[10px] text-gray-400 self-center">+{{ count($job->eligible_programs) - 3 }} more</span>
+                                        @endif
+                                    @endif
+                                </div>
 
                                 <div class="mt-4 flex items-center gap-4 text-xs text-gray-500">
                                     <span class="inline-flex items-center gap-1">

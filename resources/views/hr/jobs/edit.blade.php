@@ -28,9 +28,54 @@
 
                         <div>
                             <x-input-label for="requirements" :value="__('Requirements (one per line)')" />
-                            <textarea id="requirements" name="requirements" rows="4"
+                            <textarea id="requirements" name="requirements" rows="3"
                                 class="mt-1 block w-full border-primary-200 focus:border-primary-500 focus:ring-primary-500 rounded-md shadow-sm">{{ old('requirements', $job->requirements) }}</textarea>
                             <x-input-error :messages="$errors->get('requirements')" class="mt-2" />
+                        </div>
+
+                        {{-- Target Academic Programs Selection --}}
+                        @php
+                            $currentPrograms = old('eligible_programs', $job->eligible_programs ?? []);
+                            $isOpenToAll = in_array('ALL', $currentPrograms);
+                        @endphp
+                        <div class="p-4 bg-gray-50 border border-gray-200 rounded-lg space-y-3" x-data="{
+                            openToAll: {{ $isOpenToAll ? 'true' : 'false' }},
+                            toggleAll(e) {
+                                this.openToAll = e.target.checked;
+                            }
+                        }">
+                            <div class="flex items-center justify-between">
+                                <div>
+                                    <h4 class="text-sm font-bold text-gray-900">Target College Programs / Courses</h4>
+                                    <p class="text-xs text-gray-500">Only students from selected programs will see this opening in their feed.</p>
+                                </div>
+                                <label class="inline-flex items-center gap-1.5 cursor-pointer">
+                                    <input type="checkbox" name="eligible_programs[]" value="ALL" @change="toggleAll($event)" :checked="openToAll"
+                                           class="rounded border-gray-300 text-primary-600 focus:ring-primary-500">
+                                    <span class="text-xs font-bold text-primary-800">Open to ALL Programs</span>
+                                </label>
+                            </div>
+
+                            <div x-show="!openToAll" class="space-y-3 pt-2">
+                                @foreach (\App\Constants\AcademicProgram::grouped() as $college => $programs)
+                                    @if ($college !== 'General / Universal')
+                                        <div class="border-t border-gray-200 pt-2">
+                                            <p class="text-xs font-semibold text-gray-700 uppercase tracking-wider mb-1.5">{{ $college }}</p>
+                                            <div class="grid grid-cols-1 sm:grid-cols-2 gap-2">
+                                                @foreach ($programs as $code => $label)
+                                                    <label class="inline-flex items-center gap-2 text-xs text-gray-700 hover:text-gray-900 cursor-pointer">
+                                                        <input type="checkbox" name="eligible_programs[]" value="{{ $code }}"
+                                                               @checked(is_array($currentPrograms) && in_array($code, $currentPrograms))
+                                                               class="rounded border-gray-300 text-primary-600 focus:ring-primary-500">
+                                                        <span>{{ $label }}</span>
+                                                    </label>
+                                                @endforeach
+                                            </div>
+                                        </div>
+                                    @endif
+                                @endforeach
+                            </div>
+                            <x-input-error :messages="$errors->get('eligible_programs')" class="mt-1" />
                         </div>
 
                         <div class="grid grid-cols-2 gap-4">

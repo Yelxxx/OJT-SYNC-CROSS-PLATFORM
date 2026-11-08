@@ -27,6 +27,7 @@ class JobPosting extends Model
         'title',
         'description',
         'requirements',
+        'eligible_programs',
         'slots',
         'applications_count',
         'status',
@@ -35,7 +36,28 @@ class JobPosting extends Model
     protected $casts = [
         'slots' => 'integer',
         'applications_count' => 'integer',
+        'eligible_programs' => 'array',
     ];
+
+    /**
+     * Determine if a given student's academic program is eligible for this job.
+     */
+    public function isEligibleFor(?string $program): bool
+    {
+        if (empty($this->eligible_programs)) {
+            return true;
+        }
+
+        if (in_array(\App\Constants\AcademicProgram::PROGRAM_ALL, $this->eligible_programs, true)) {
+            return true;
+        }
+
+        if (! $program) {
+            return false;
+        }
+
+        return in_array($program, $this->eligible_programs, true);
+    }
 
     public function company(): BelongsTo
     {

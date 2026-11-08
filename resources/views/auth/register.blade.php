@@ -24,13 +24,31 @@
         <!-- Program & Year -->
         <div class="mt-4 grid grid-cols-1 sm:grid-cols-2 gap-4">
             <div>
-                <x-input-label for="program" :value="__('Program')" />
-                <x-text-input id="program" class="block mt-1 w-full" type="text" name="program" :value="old('program')" placeholder="e.g. BSIT" />
+                <x-input-label for="program" :value="__('Course / Program')" />
+                <select id="program" name="program" required
+                        class="mt-1 block w-full text-sm border-gray-300 focus:border-primary-500 focus:ring-primary-500 rounded-md shadow-sm">
+                    <option value="">Select your course...</option>
+                    @foreach (\App\Constants\AcademicProgram::grouped() as $college => $programs)
+                        @if ($college !== 'General / Universal')
+                            <optgroup label="{{ $college }}">
+                                @foreach ($programs as $code => $label)
+                                    <option value="{{ $code }}" @selected(old('program') === $code)>{{ $label }}</option>
+                                @endforeach
+                            </optgroup>
+                        @endif
+                    @endforeach
+                </select>
                 <x-input-error :messages="$errors->get('program')" class="mt-2" />
             </div>
             <div>
                 <x-input-label for="year_level" :value="__('Year Level')" />
-                <x-text-input id="year_level" class="block mt-1 w-full" type="text" name="year_level" :value="old('year_level')" placeholder="e.g. 3rd Year" />
+                <select id="year_level" name="year_level"
+                        class="mt-1 block w-full text-sm border-gray-300 focus:border-primary-500 focus:ring-primary-500 rounded-md shadow-sm">
+                    <option value="">Select year level...</option>
+                    <option value="3rd Year" @selected(old('year_level') === '3rd Year')>3rd Year</option>
+                    <option value="4th Year" @selected(old('year_level') === '4th Year')>4th Year</option>
+                    <option value="Graduating" @selected(old('year_level') === 'Graduating')>Graduating</option>
+                </select>
                 <x-input-error :messages="$errors->get('year_level')" class="mt-2" />
             </div>
         </div>
