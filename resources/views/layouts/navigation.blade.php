@@ -78,6 +78,20 @@
                                 {{ __('Company Applications') }}
                             </x-nav-link>
                         @endif
+
+                        @if (! Auth::user()->isAdmin())
+                            <x-nav-link :href="route('messages.index')" :active="request()->routeIs('messages.*')" class="relative">
+                                {{ __('Messages') }}
+                                @php
+                                    $unreadMessagesCount = \App\Models\Message::where('recipient_id', Auth::id())->whereNull('read_at')->count();
+                                @endphp
+                                @if ($unreadMessagesCount > 0)
+                                    <span class="ms-1.5 inline-flex items-center justify-center px-1.5 py-0.5 text-[10px] font-bold leading-none text-primary-950 bg-gold-400 rounded-full">
+                                        {{ $unreadMessagesCount > 9 ? '9+' : $unreadMessagesCount }}
+                                    </span>
+                                @endif
+                            </x-nav-link>
+                        @endif
                     @endauth
                 </div>
             </div>                <!-- Settings Dropdown -->
@@ -192,6 +206,20 @@
                 @elseif (Auth::user()->isAdmin())
                     <x-responsive-nav-link :href="route('admin.companies.index')" :active="request()->routeIs('admin.companies.*')">
                         {{ __('Company Applications') }}
+                    </x-responsive-nav-link>
+                @endif
+
+                @if (! Auth::user()->isAdmin())
+                    <x-responsive-nav-link :href="route('messages.index')" :active="request()->routeIs('messages.*')" class="flex items-center justify-between">
+                        <span>{{ __('Messages') }}</span>
+                        @php
+                            $unreadMessagesCountResponsive = \App\Models\Message::where('recipient_id', Auth::id())->whereNull('read_at')->count();
+                        @endphp
+                        @if ($unreadMessagesCountResponsive > 0)
+                            <span class="inline-flex items-center justify-center px-2 py-0.5 text-xs font-bold leading-none text-primary-950 bg-gold-400 rounded-full">
+                                {{ $unreadMessagesCountResponsive }}
+                            </span>
+                        @endif
                     </x-responsive-nav-link>
                 @endif
             @endauth

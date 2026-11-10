@@ -16,6 +16,7 @@ use App\Http\Controllers\Hr\EvaluationController as HrEvaluationController;
 use App\Http\Controllers\Hr\InternController as HrInternController;
 use App\Http\Controllers\Hr\JobController as HrJobController;
 use App\Http\Controllers\Hr\LeaveController as HrLeaveController;
+use App\Http\Controllers\MessageController;
 use App\Http\Controllers\NotificationController;
 use App\Http\Controllers\ProfileController;
 use App\Http\Controllers\ResumeController;
@@ -79,6 +80,8 @@ Route::middleware('auth')->group(function () {
         ->name('notifications.read');
     Route::post('/notifications/mark-all-read', [NotificationController::class, 'markAllRead'])
         ->name('notifications.markAllRead');
+    Route::get('/messages', [MessageController::class, 'index'])->name('messages.index');
+    Route::post('/messages', [MessageController::class, 'store'])->name('messages.store');
 });
 
 Route::middleware(['auth', 'verified', 'role:student'])

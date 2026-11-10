@@ -126,6 +126,12 @@
                             <p class="text-xs text-gray-500 mt-0.5">
                                 {{ $d['student_name'] }} filed {{ $d['leave_type'] }} ({{ $d['start_date'] }})
                             </p>
+                        @elseif ($notification->type === \App\Notifications\NewDirectMessageNotification::class)
+                            @php $d = $notification->data; @endphp
+                            <p class="font-medium text-gray-900">💬 Message from {{ $d['sender_name'] }}</p>
+                            <p class="text-xs text-gray-500 mt-0.5">
+                                "{{ \Illuminate\Support\Str::limit($d['snippet'], 45) }}"
+                            </p>
                         @else
                             <p class="font-medium text-gray-900">{{ class_basename($notification->type) }}</p>
                         @endif

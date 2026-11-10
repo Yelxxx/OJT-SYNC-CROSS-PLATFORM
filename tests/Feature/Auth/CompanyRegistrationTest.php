@@ -148,6 +148,7 @@ class CompanyRegistrationTest extends TestCase
     {
         return [
             'company_name' => 'Acme Testing Corporation',
+            'industry' => \App\Constants\CompanyIndustry::IT_TECH,
             'company_address' => '123 Test St, General Trias, Cavite',
             'company_phone' => '(046) 555-0000',
             'company_website' => 'https://acme.test',
