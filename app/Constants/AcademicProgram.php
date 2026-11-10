@@ -7,7 +7,8 @@ class AcademicProgram
     public const PROGRAM_ALL = 'ALL';
 
     /**
-     * Grouped academic programs by university college/discipline.
+     * Grouped academic programs by college offered at Cavite State University (CvSU - Main Campus).
+     * Excludes non-OJT and strictly hospital/clinical residency programs (Medicine, Nursing/MedTech, VetMed).
      *
      * @return array<string, array<string, string>>
      */
@@ -17,39 +18,65 @@ class AcademicProgram
             'General / Universal' => [
                 self::PROGRAM_ALL => 'Open to All Programs',
             ],
-            'College of Computing & Information Technologies' => [
-                'BSIT' => 'BS in Information Technology (BSIT)',
-                'BSCS' => 'BS in Computer Science (BSCS)',
-                'BSIS' => 'BS in Information Systems (BSIS)',
-                'BSEMC' => 'BS in Entertainment & Multimedia Computing',
+            'College of Agriculture, Food, Environment & Natural Resources (CAFENR)' => [
+                'BAE' => 'Bachelor in Agricultural Entrepreneurship (BAE)',
+                'BSA-AGRI' => 'Bachelor of Science in Agriculture (BSA)',
+                'BSES' => 'Bachelor of Science in Environmental Science (BSES)',
+                'BSFT' => 'Bachelor of Science in Food Technology (BSFT)',
             ],
-            'College of Business & Management' => [
-                'BSA' => 'BS in Accountancy (BSA)',
-                'BSBA-HR' => 'BSBA - Human Resource Management',
-                'BSBA-MM' => 'BSBA - Marketing Management',
+            'College of Arts and Sciences (CAS)' => [
+                'BACOMM' => 'Bachelor of Arts in Communication (BACOMM)',
+                'BAELS' => 'Bachelor of Arts in English Language Studies (BAELS)',
+                'BAJOURN' => 'Bachelor of Arts in Journalism (BAJOURN)',
+                'BAPOLSCI' => 'Bachelor of Arts in Political Science (BAPOLSCI)',
+                'BSAM' => 'Bachelor of Science in Applied Mathematics (BSAM)',
+                'BSBIO' => 'Bachelor of Science in Biology (BSBIO)',
+                'BSDC' => 'Bachelor of Science in Development Communication (BSDC)',
+                'BSPSYCH' => 'Bachelor of Science in Psychology (BSPSYCH)',
+                'BSSW' => 'Bachelor of Science in Social Work (BSSW)',
+            ],
+            'College of Criminal Justice (CCJ)' => [
+                'BSCrim' => 'Bachelor of Science in Criminology (BSCrim)',
+                'BSISM' => 'Bachelor of Science in Industrial Security Management (BSISM)',
+            ],
+            'College of Economics, Management & Development Studies (CEMDS)' => [
+                'BSA' => 'Bachelor of Science in Accountancy (BSA)',
                 'BSBA-FM' => 'BSBA - Financial Management',
+                'BSBA-HRM' => 'BSBA - Human Resource Management',
+                'BSBA-MM' => 'BSBA - Marketing Management',
                 'BSBA-OM' => 'BSBA - Operations Management',
-                'BSE' => 'BS in Entrepreneurship (BSE)',
+                'BSBA-SM' => 'BSBA - Service Management',
+                'BSDM' => 'Bachelor of Science in Development Management (BSDM)',
+                'BSECON' => 'Bachelor of Science in Economics (BSECON)',
+                'BSIS-INT' => 'Bachelor of Science in International Studies (BSIS)',
+                'BSOA' => 'Bachelor of Science in Office Administration (BSOA)',
             ],
-            'College of Hospitality & Tourism Management' => [
-                'BSHM' => 'BS in Hospitality Management (Hotel/Restaurant)',
-                'BSTM' => 'BS in Tourism Management',
+            'College of Education (CED)' => [
+                'BECE' => 'Bachelor of Early Childhood Education (BECE)',
+                'BEED' => 'Bachelor of Elementary Education (BEED)',
+                'BSED' => 'Bachelor of Secondary Education (BSED)',
+                'BSNEd' => 'Bachelor of Special Needs Education (BSNEd)',
+                'BTLE' => 'Bachelor of Technology and Livelihood Education (BTLE)',
             ],
-            'College of Engineering & Architecture' => [
-                'BSCE' => 'BS in Civil Engineering',
-                'BSCpE' => 'BS in Computer Engineering',
-                'BSEE' => 'BS in Electrical Engineering',
-                'BSECE' => 'BS in Electronics Engineering',
-                'BSME' => 'BS in Mechanical Engineering',
-                'BSIE' => 'BS in Industrial Engineering',
-                'BSARCH' => 'BS in Architecture',
+            'College of Tourism and Hospitality Management (CTHM)' => [
+                'BSHM' => 'Bachelor of Science in Hospitality Management (BSHM)',
+                'BSTM' => 'Bachelor of Science in Tourism Management (BSTM)',
             ],
-            'College of Arts, Sciences & Education' => [
-                'BACOMM' => 'BA in Communication',
-                'AB-PSYCH' => 'AB in Psychology',
-                'BS-PSYCH' => 'BS in Psychology',
-                'BSED' => 'Bachelor of Secondary Education',
-                'BEED' => 'Bachelor of Elementary Education',
+            'College of Engineering & Information Technology (CEIT)' => [
+                'BSABE' => 'Bachelor of Science in Agricultural & Biosystems Engineering (BSABE)',
+                'BSARCH' => 'Bachelor of Science in Architecture (BSARCH)',
+                'BSCE' => 'Bachelor of Science in Civil Engineering (BSCE)',
+                'BSCpE' => 'Bachelor of Science in Computer Engineering (BSCpE)',
+                'BSCS' => 'Bachelor of Science in Computer Science (BSCS)',
+                'BSEE' => 'Bachelor of Science in Electrical Engineering (BSEE)',
+                'BSECE' => 'Bachelor of Science in Electronics & Communication Engineering (BSECE)',
+                'BSIE' => 'Bachelor of Science in Industrial Engineering (BSIE)',
+                'BSIT' => 'Bachelor of Science in Information Technology (BSIT)',
+                'BSIndTech' => 'Bachelor of Science in Industrial Technology (BSIndTech)',
+            ],
+            'College of Sports, Physical Education & Recreation (CSPEAR)' => [
+                'BPED' => 'Bachelor of Physical Education (BPED)',
+                'BSESS' => 'Bachelor of Science in Exercise and Sports Sciences (BSESS)',
             ],
         ];
     }
@@ -83,4 +110,3 @@ class AcademicProgram
         return $all[$code] ?? $code;
     }
 }
-
