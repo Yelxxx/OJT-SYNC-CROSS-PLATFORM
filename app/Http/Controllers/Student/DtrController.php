@@ -31,6 +31,7 @@ class DtrController extends Controller
             'activeEntry' => $activeEntry,
             'totalHours' => $student->totalHours(),
             'requiredHours' => $student->required_hours,
+            'isClearedForDeployment' => (bool) $student->is_cleared_for_deployment,
         ]);
     }
 

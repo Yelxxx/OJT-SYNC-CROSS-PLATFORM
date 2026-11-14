@@ -15,7 +15,10 @@ class DtrTest extends TestCase
     private function studentActor(): Student
     {
         $company = Company::factory()->create();
-        $student = Student::factory()->create(['company_id' => $company->id]);
+        $student = Student::factory()->create([
+            'company_id' => $company->id,
+            'is_cleared_for_deployment' => true,
+        ]);
 
         $this->actingAs($student->user);
 
@@ -43,7 +46,24 @@ class DtrTest extends TestCase
 
     public function test_student_cannot_check_in_without_assigned_company(): void
     {
-        $student = Student::factory()->create(['company_id' => null]);
+        $student = Student::factory()->create([
+            'company_id' => null,
+            'is_cleared_for_deployment' => true,
+        ]);
+        $this->actingAs($student->user);
+
+        $this->post(route('student.dtr.checkin'))->assertStatus(403);
+
+        $this->assertSame(0, $student->dtrEntries()->count());
+    }
+
+    public function test_student_cannot_check_in_without_deployment_clearance(): void
+    {
+        $company = Company::factory()->create();
+        $student = Student::factory()->create([
+            'company_id' => $company->id,
+            'is_cleared_for_deployment' => false,
+        ]);
         $this->actingAs($student->user);
 
         $this->post(route('student.dtr.checkin'))->assertStatus(403);
@@ -54,7 +74,11 @@ class DtrTest extends TestCase
     public function test_student_cannot_check_in_when_not_active(): void
     {
         $company = Company::factory()->create();
-        $student = Student::factory()->create(['company_id' => $company->id, 'status' => 'pending']);
+        $student = Student::factory()->create([
+            'company_id' => $company->id,
+            'status' => 'pending',
+            'is_cleared_for_deployment' => true,
+        ]);
         $this->actingAs($student->user);
 
         $this->post(route('student.dtr.checkin'))->assertStatus(403);

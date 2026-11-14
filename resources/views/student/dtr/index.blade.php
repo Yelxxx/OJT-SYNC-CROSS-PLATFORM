@@ -80,6 +80,19 @@
                                         Time Out
                                     </button>
                                 </form>
+                            @elseif (! $isClearedForDeployment)
+                                <div class="bg-amber-50 border border-amber-200 rounded-xl p-4 max-w-sm text-center">
+                                    <div class="text-amber-800 text-xs font-bold uppercase tracking-wider mb-1 flex items-center justify-center gap-1.5">
+                                        <span>🔒</span> Deployment Clearance Required
+                                    </div>
+                                    <p class="text-xs text-amber-900 leading-relaxed">
+                                        You cannot clock in until your Practicum Coordinator verifies and approves your Pre-Deployment requirements.
+                                    </p>
+                                    <a href="{{ route('student.checklist.index') }}"
+                                       class="mt-3 inline-flex items-center justify-center px-3 py-1.5 bg-amber-600 hover:bg-amber-700 text-white rounded-lg text-xs font-semibold shadow-sm transition">
+                                        View Clearance Requirements &rarr;
+                                    </a>
+                                </div>
                             @else
                                 <div>
                                     <form method="POST" action="{{ route('student.dtr.checkin') }}">

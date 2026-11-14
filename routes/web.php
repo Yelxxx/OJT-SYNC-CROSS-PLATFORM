@@ -1,6 +1,7 @@
 <?php
 
 use App\Http\Controllers\Admin\CompanyApprovalController;
+use App\Http\Controllers\Coordinator\ClearanceController as CoordinatorClearanceController;
 use App\Http\Controllers\Coordinator\DashboardController as CoordinatorDashboardController;
 use App\Http\Controllers\Coordinator\DtrController as CoordinatorDtrController;
 use App\Http\Controllers\Coordinator\EvaluationController as CoordinatorEvaluationController;
@@ -125,6 +126,13 @@ Route::middleware(['auth', 'verified', 'role:coordinator'])
         Route::get('/evaluations', [CoordinatorEvaluationController::class, 'index'])->name('evaluations.index');
         Route::get('/evaluations/{evaluation}/print', [CoordinatorEvaluationController::class, 'print'])->name('evaluations.print');
         Route::patch('/students/{student}', [CoordinatorStudentController::class, 'update'])->name('students.update');
+
+        // Pre-Deployment Clearance & MOA Gate
+        Route::get('/clearance', [CoordinatorClearanceController::class, 'index'])->name('clearance.index');
+        Route::get('/clearance/students/{student}', [CoordinatorClearanceController::class, 'show'])->name('clearance.show');
+        Route::post('/clearance/items/{item}/review', [CoordinatorClearanceController::class, 'reviewItem'])->name('clearance.items.review');
+        Route::get('/clearance/items/{item}/download', [CoordinatorClearanceController::class, 'downloadItem'])->name('clearance.items.download');
+        Route::post('/clearance/students/{student}/toggle-deployment', [CoordinatorClearanceController::class, 'toggleDeploymentClearance'])->name('clearance.students.toggle-deployment');
     });
 
 Route::middleware(['auth', 'verified', 'role:hr'])

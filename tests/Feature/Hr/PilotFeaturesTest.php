@@ -67,7 +67,7 @@ class PilotFeaturesTest extends TestCase
         $student->refresh();
 
         $this->assertSame($hr->company_id, $student->company_id);
-        $this->assertSame(4, $student->checklistItems()->count());
+        $this->assertSame(count(\App\Models\InternChecklistItem::DEFAULTS), $student->checklistItems()->count());
     }
 
     public function test_hiring_beyond_available_slots_is_blocked(): void

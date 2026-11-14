@@ -29,6 +29,7 @@ class DatabaseSeeder extends Seeder
         User::create([
             'name' => 'OJT Sync Admin',
             'email' => 'admin@cvsu.edu.ph',
+            'email_verified_at' => now(),
             'password' => Hash::make($password),
             'role' => User::ROLE_ADMIN,
         ]);
@@ -37,6 +38,7 @@ class DatabaseSeeder extends Seeder
         $coordinator = User::create([
             'name' => 'Prof. Michael Palines',
             'email' => 'coordinator@cvsu.edu.ph',
+            'email_verified_at' => now(),
             'password' => Hash::make($password),
             'role' => User::ROLE_COORDINATOR,
             'department' => 'College of Engineering and Information Technology',
@@ -71,6 +73,7 @@ class DatabaseSeeder extends Seeder
         $hr = User::create([
             'name' => 'Kurt Harve',
             'email' => 'hr@technologia.test',
+            'email_verified_at' => now(),
             'password' => Hash::make($password),
             'role' => User::ROLE_HR,
             'company_id' => $techNologia->id,
@@ -79,6 +82,7 @@ class DatabaseSeeder extends Seeder
         User::create([
             'name' => 'Melissa Digital Works HR',
             'email' => 'careers@melissadigital.test',
+            'email_verified_at' => now(),
             'password' => Hash::make($password),
             'role' => User::ROLE_HR,
             'company_id' => $melissaDigital->id,
@@ -96,6 +100,7 @@ class DatabaseSeeder extends Seeder
             $user = User::create([
                 'name' => $data['name'],
                 'email' => $data['email'],
+                'email_verified_at' => now(),
                 'password' => Hash::make($password),
                 'role' => User::ROLE_STUDENT,
             ]);

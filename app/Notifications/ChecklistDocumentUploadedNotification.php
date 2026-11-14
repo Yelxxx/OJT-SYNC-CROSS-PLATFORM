@@ -28,13 +28,17 @@ class ChecklistDocumentUploadedNotification extends Notification
      */
     public function toArray(object $notifiable): array
     {
+        $link = ($notifiable instanceof \App\Models\User && $notifiable->isCoordinator())
+            ? route('coordinator.clearance.show', $this->item->student_id)
+            : route('hr.interns.index');
+
         return [
             'item_id' => $this->item->id,
             'title' => $this->item->title,
             'file_name' => $this->item->file_name,
             'student_name' => $this->studentName,
             'notes' => $this->item->notes,
-            'link' => route('hr.interns.index'),
+            'link' => $link,
         ];
     }
 }

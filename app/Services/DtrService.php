@@ -21,6 +21,14 @@ class DtrService
             throw new DomainActionException('no_company', 'You cannot clock in until a company has been assigned to you.', 403);
         }
 
+        if (! $student->is_cleared_for_deployment) {
+            throw new DomainActionException(
+                'not_cleared',
+                'Deployment Clearance Required: You cannot clock in until your Practicum Coordinator has verified and approved your Pre-Deployment requirements.',
+                403
+            );
+        }
+
         if ($student->status !== 'active') {
             throw new DomainActionException('inactive', 'Your OJT status must be active to clock in.', 403);
         }

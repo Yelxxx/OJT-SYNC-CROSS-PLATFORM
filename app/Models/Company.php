@@ -20,6 +20,18 @@ class Company extends Model
 
     public const STATUS_REJECTED = 'rejected';
 
+    public const MOA_ACTIVE = 'active';
+    public const MOA_PENDING_RENEWAL = 'pending_renewal';
+    public const MOA_EXPIRED = 'expired';
+    public const MOA_NONE = 'none';
+
+    public const MOA_STATUSES = [
+        self::MOA_ACTIVE => 'Active Institutional MOA',
+        self::MOA_PENDING_RENEWAL => 'Pending MOA Renewal',
+        self::MOA_EXPIRED => 'Expired MOA',
+        self::MOA_NONE => 'No Institutional MOA (Requires Endorsement/Custom MOA)',
+    ];
+
     public const STATUSES = [
         self::STATUS_PENDING => 'Pending Review',
         self::STATUS_APPROVED => 'Approved',
@@ -48,13 +60,31 @@ class Company extends Model
         'rejection_reason',
         'is_active',
         'status',
+        'moa_status',
+        'moa_valid_until',
+        'moa_file_path',
+        'moa_notes',
     ];
 
     protected $casts = [
         'latitude' => 'decimal:7',
         'longitude' => 'decimal:7',
         'is_active' => 'boolean',
+        'moa_valid_until' => 'date',
     ];
+
+    public function hasValidMoa(): bool
+    {
+        if ($this->moa_status !== self::MOA_ACTIVE) {
+            return false;
+        }
+
+        if ($this->moa_valid_until && $this->moa_valid_until->isPast()) {
+            return false;
+        }
+
+        return true;
+    }
 
     public function jobPostings(): HasMany
     {

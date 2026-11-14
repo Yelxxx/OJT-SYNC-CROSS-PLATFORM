@@ -26,12 +26,46 @@ class Student extends Model
         'year_level',
         'required_hours',
         'status',
+        'is_cleared_for_deployment',
+        'cleared_at',
+        'cleared_by',
     ];
 
     protected $casts = [
         'required_hours' => 'integer',
         'endorsed_at' => 'datetime',
+        'is_cleared_for_deployment' => 'boolean',
+        'cleared_at' => 'datetime',
     ];
+
+    public function clearedBy(): BelongsTo
+    {
+        return $this->belongsTo(User::class, 'cleared_by');
+    }
+
+    /**
+     * Check if the student meets all conditions to be deployed to company duty.
+     */
+    public function checkClearanceReadiness(): array
+    {
+        $checklist = $this->checklistItems;
+        $totalRequired = $checklist->count();
+        $approvedCount = $checklist->filter->isApproved()->count();
+
+        $allDocsApproved = $totalRequired > 0 && $approvedCount >= $totalRequired;
+        $companyHasMoa = $this->company?->hasValidMoa() ?? false;
+        $isCleared = (bool) $this->is_cleared_for_deployment;
+
+        return [
+            'is_cleared' => $isCleared,
+            'all_docs_approved' => $allDocsApproved,
+            'approved_count' => $approvedCount,
+            'total_count' => $totalRequired,
+            'company_has_moa' => $companyHasMoa,
+            'company_moa_status' => $this->company?->moa_status ?? 'none',
+            'can_be_cleared' => $allDocsApproved && $this->company_id !== null,
+        ];
+    }
 
     public function user(): BelongsTo
     {

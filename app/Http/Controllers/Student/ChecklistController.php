@@ -25,12 +25,14 @@ class ChecklistController extends Controller
 
         $checklistItems = $student->checklistItems()->get();
         $company = $student->company;
+        $clearanceData = $student->checkClearanceReadiness();
 
         return view('student.checklist.index', [
             'checklistItems' => $checklistItems,
             'company' => $company,
-            'completedCount' => $checklistItems->where('is_complete', true)->count(),
-            'totalCount' => $checklistItems->count(),
+            'completedCount' => $clearanceData['approved_count'],
+            'totalCount' => $clearanceData['total_count'],
+            'clearanceData' => $clearanceData,
         ]);
     }
 
@@ -56,9 +58,19 @@ class ChecklistController extends Controller
         $item->update([
             'file_path' => $storedPath,
             'file_name' => $fileName,
+            'status' => InternChecklistItem::STATUS_SUBMITTED,
             'submitted_at' => now(),
             'notes' => $validated['notes'] ?? $item->notes,
+            'rejection_reason' => null,
         ]);
+
+        // Notify Coordinator
+        if ($student->coordinator) {
+            $student->coordinator->notify(new ChecklistDocumentUploadedNotification(
+                item: $item,
+                studentName: Auth::user()->name
+            ));
+        }
 
         // Notify Company HR users
         if ($student->company_id) {

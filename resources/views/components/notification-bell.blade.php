@@ -132,6 +132,29 @@
                             <p class="text-xs text-gray-500 mt-0.5">
                                 "{{ \Illuminate\Support\Str::limit($d['snippet'], 45) }}"
                             </p>
+                        @elseif ($notification->type === \App\Notifications\ChecklistItemReviewedNotification::class)
+                            @php $d = $notification->data; @endphp
+                            <p class="font-medium text-gray-900">
+                                {{ $d['status'] === 'approved' ? '✅ Clearance Item Approved' : '⚠️ Revision Requested' }}
+                            </p>
+                            <p class="text-xs text-gray-500 mt-0.5">
+                                {{ $d['title'] }} &bull; by {{ $d['reviewer_name'] }}
+                                @if (!empty($d['rejection_reason']))
+                                    ({{ \Illuminate\Support\Str::limit($d['rejection_reason'], 40) }})
+                                @endif
+                            </p>
+                        @elseif ($notification->type === \App\Notifications\StudentDeploymentClearedNotification::class)
+                            @php $d = $notification->data; @endphp
+                            <p class="font-medium text-gray-900">
+                                {{ $d['is_cleared'] ? '🟢 Deployment Clearance Granted' : '🔒 Clearance Revoked' }}
+                            </p>
+                            <p class="text-xs text-gray-500 mt-0.5">
+                                @if ($d['is_cleared'])
+                                    Certified by {{ $d['coordinator_name'] }} &bull; DTR clock is now unlocked!
+                                @else
+                                    Deployment clearance was updated by your coordinator.
+                                @endif
+                            </p>
                         @else
                             <p class="font-medium text-gray-900">{{ class_basename($notification->type) }}</p>
                         @endif
