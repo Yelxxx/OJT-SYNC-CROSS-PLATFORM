@@ -45,6 +45,9 @@
                             <x-nav-link :href="route('coordinator.clearance.index')" :active="request()->routeIs('coordinator.clearance.*')">
                                 {{ __('Clearance & MOA') }}
                             </x-nav-link>
+                            <x-nav-link :href="route('coordinator.pacing.index')" :active="request()->routeIs('coordinator.pacing.*')">
+                                {{ __('Pacing Radar') }}
+                            </x-nav-link>
                             <x-nav-link :href="route('coordinator.dtr.index')" :active="request()->routeIs('coordinator.dtr.*')">
                                 {{ __('Time Records') }}
                             </x-nav-link>
@@ -180,6 +183,9 @@
                 @elseif (Auth::user()->isCoordinator())
                     <x-responsive-nav-link :href="route('coordinator.clearance.index')" :active="request()->routeIs('coordinator.clearance.*')">
                         {{ __('Clearance & MOA') }}
+                    </x-responsive-nav-link>
+                    <x-responsive-nav-link :href="route('coordinator.pacing.index')" :active="request()->routeIs('coordinator.pacing.*')">
+                        {{ __('Pacing Radar') }}
                     </x-responsive-nav-link>
                     <x-responsive-nav-link :href="route('coordinator.dtr.index')" :active="request()->routeIs('coordinator.dtr.*')">
                         {{ __('Time Records') }}

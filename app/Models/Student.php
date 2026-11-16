@@ -29,6 +29,9 @@ class Student extends Model
         'is_cleared_for_deployment',
         'cleared_at',
         'cleared_by',
+        'deployment_date',
+        'target_end_date',
+        'last_nudge_at',
     ];
 
     protected $casts = [
@@ -36,6 +39,9 @@ class Student extends Model
         'endorsed_at' => 'datetime',
         'is_cleared_for_deployment' => 'boolean',
         'cleared_at' => 'datetime',
+        'deployment_date' => 'date',
+        'target_end_date' => 'date',
+        'last_nudge_at' => 'datetime',
     ];
 
     public function clearedBy(): BelongsTo
@@ -158,6 +164,129 @@ class Student extends Model
         $target = max(1, $this->required_hours);
 
         return (int) round(($this->totalHours() / $target) * 100);
+    }
+
+    /**
+     * Compute real-time OJT pacing and early warning risk indicators.
+     *
+     * @return array{
+     *     status: 'completed'|'at_risk'|'slow'|'on_track'|'unplaced',
+     *     status_label: string,
+     *     badge_class: string,
+     *     progress_percent: int,
+     *     remaining_hours: float,
+     *     completed_hours: float,
+     *     target_end_date: ?\Illuminate\Support\Carbon,
+     *     days_remaining: int,
+     *     weeks_remaining: float,
+     *     required_pace_weekly: float,
+     *     days_since_last_clockin: ?int,
+     *     risk_reasons: list<string>
+     * }
+     */
+    public function computePacingAnalysis(): array
+    {
+        $completedHours = $this->totalHours();
+        $targetHours = max(1, $this->required_hours);
+        $remainingHours = max(0.0, $targetHours - $completedHours);
+        $progressPercent = (int) round(($completedHours / $targetHours) * 100);
+
+        if ($progressPercent >= 100 || $this->status === 'completed') {
+            return [
+                'status' => 'completed',
+                'status_label' => 'Completed',
+                'badge_class' => 'bg-emerald-100 text-emerald-800 border-emerald-300',
+                'progress_percent' => 100,
+                'remaining_hours' => 0.0,
+                'completed_hours' => $completedHours,
+                'target_end_date' => $this->target_end_date,
+                'days_remaining' => 0,
+                'weeks_remaining' => 0.0,
+                'required_pace_weekly' => 0.0,
+                'days_since_last_clockin' => null,
+                'risk_reasons' => [],
+            ];
+        }
+
+        if (! $this->company_id) {
+            return [
+                'status' => 'unplaced',
+                'status_label' => 'Unplaced',
+                'badge_class' => 'bg-gray-100 text-gray-700 border-gray-300',
+                'progress_percent' => 0,
+                'remaining_hours' => (float) $targetHours,
+                'completed_hours' => 0.0,
+                'target_end_date' => $this->target_end_date,
+                'days_remaining' => 0,
+                'weeks_remaining' => 0.0,
+                'required_pace_weekly' => 0.0,
+                'days_since_last_clockin' => null,
+                'risk_reasons' => ['No host company assigned yet.'],
+            ];
+        }
+
+        // Determine target completion date (defaults to 10 weeks from deployment or 60 days from now)
+        $targetEnd = $this->target_end_date
+            ?? ($this->deployment_date ? $this->deployment_date->copy()->addWeeks(10) : now()->addDays(60));
+
+        $daysRemaining = max(1, (int) now()->diffInDays($targetEnd, false));
+        $weeksRemaining = max(0.2, $daysRemaining / 7.0);
+        $requiredPaceWeekly = round($remainingHours / $weeksRemaining, 1);
+
+        // Check recent activity: date of latest DTR entry
+        $latestDtr = $this->dtrEntries()->latest('date')->first();
+        $daysSinceLastClockin = $latestDtr
+            ? (int) now()->diffInDays($latestDtr->date)
+            : ($this->deployment_date ? (int) now()->diffInDays($this->deployment_date) : 14);
+
+        $riskReasons = [];
+
+        // Inactivity check: No clock-in for 7+ days
+        if ($daysSinceLastClockin >= 7) {
+            $riskReasons[] = "Inactive: No DTR clock-in logged in the last {$daysSinceLastClockin} days.";
+        }
+
+        // Velocity check: Unrealistic pace needed to finish before semester ends (> 45 hrs/week)
+        if ($requiredPaceWeekly > 45.0) {
+            $riskReasons[] = "Critical Velocity: Needs {$requiredPaceWeekly} hrs/week to complete before deadline.";
+        }
+
+        // Timeline check: Low completion (<40%) with less than 4 weeks left
+        if ($weeksRemaining <= 4.0 && $progressPercent < 40) {
+            $riskReasons[] = "Late Schedule: Only {$progressPercent}% completed with {$daysRemaining} days remaining.";
+        }
+
+        if (! empty($riskReasons) || $requiredPaceWeekly > 45.0 || $daysSinceLastClockin >= 10) {
+            $status = 'at_risk';
+            $statusLabel = 'At Risk';
+            $badgeClass = 'bg-rose-100 text-rose-800 border-rose-300';
+        } elseif ($requiredPaceWeekly > 35.0 || $daysSinceLastClockin >= 5) {
+            $status = 'slow';
+            $statusLabel = 'Pacing Slow';
+            $badgeClass = 'bg-amber-100 text-amber-800 border-amber-300';
+            if ($requiredPaceWeekly > 35.0) {
+                $riskReasons[] = "Pace lagging: Requires {$requiredPaceWeekly} hrs/week to stay on schedule.";
+            }
+        } else {
+            $status = 'on_track';
+            $statusLabel = 'On Track';
+            $badgeClass = 'bg-emerald-100 text-emerald-800 border-emerald-300';
+        }
+
+        return [
+            'status' => $status,
+            'status_label' => $statusLabel,
+            'badge_class' => $badgeClass,
+            'progress_percent' => $progressPercent,
+            'remaining_hours' => $remainingHours,
+            'completed_hours' => $completedHours,
+            'target_end_date' => $targetEnd,
+            'days_remaining' => $daysRemaining,
+            'weeks_remaining' => round($weeksRemaining, 1),
+            'required_pace_weekly' => $requiredPaceWeekly,
+            'days_since_last_clockin' => $daysSinceLastClockin,
+            'risk_reasons' => $riskReasons,
+        ];
     }
 
     /**

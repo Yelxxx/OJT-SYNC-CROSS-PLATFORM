@@ -6,6 +6,7 @@ use App\Http\Controllers\Coordinator\DashboardController as CoordinatorDashboard
 use App\Http\Controllers\Coordinator\DtrController as CoordinatorDtrController;
 use App\Http\Controllers\Coordinator\EvaluationController as CoordinatorEvaluationController;
 use App\Http\Controllers\Coordinator\JournalController as CoordinatorJournalController;
+use App\Http\Controllers\Coordinator\PacingController as CoordinatorPacingController;
 use App\Http\Controllers\Coordinator\StudentController as CoordinatorStudentController;
 use App\Http\Controllers\DashboardController;
 use App\Http\Controllers\EvaluationFillController;
@@ -133,6 +134,11 @@ Route::middleware(['auth', 'verified', 'role:coordinator'])
         Route::post('/clearance/items/{item}/review', [CoordinatorClearanceController::class, 'reviewItem'])->name('clearance.items.review');
         Route::get('/clearance/items/{item}/download', [CoordinatorClearanceController::class, 'downloadItem'])->name('clearance.items.download');
         Route::post('/clearance/students/{student}/toggle-deployment', [CoordinatorClearanceController::class, 'toggleDeploymentClearance'])->name('clearance.students.toggle-deployment');
+
+        // Early Warning & Pacing Radar
+        Route::get('/pacing', [CoordinatorPacingController::class, 'index'])->name('pacing.index');
+        Route::patch('/pacing/students/{student}/timeline', [CoordinatorPacingController::class, 'updateTimeline'])->name('pacing.students.timeline');
+        Route::post('/pacing/students/{student}/nudge', [CoordinatorPacingController::class, 'nudge'])->name('pacing.students.nudge');
     });
 
 Route::middleware(['auth', 'verified', 'role:hr'])

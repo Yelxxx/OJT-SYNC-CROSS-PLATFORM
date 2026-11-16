@@ -155,6 +155,12 @@
                                     Deployment clearance was updated by your coordinator.
                                 @endif
                             </p>
+                        @elseif ($notification->type === \App\Notifications\CoordinatorProgressNudgeNotification::class)
+                            @php $d = $notification->data; @endphp
+                            <p class="font-medium text-gray-900">⚠️ Pacing Notice: {{ $d['coordinator_name'] }}</p>
+                            <p class="text-xs text-rose-700 mt-0.5">
+                                "{{ \Illuminate\Support\Str::limit($d['message'], 50) }}"
+                            </p>
                         @else
                             <p class="font-medium text-gray-900">{{ class_basename($notification->type) }}</p>
                         @endif
