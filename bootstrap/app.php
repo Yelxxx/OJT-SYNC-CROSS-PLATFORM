@@ -28,9 +28,7 @@ return Application::configure(basePath: dirname(__DIR__))
             'hired' => EnsureHired::class,
         ]);
 
-        // CSRF is validated everywhere. (The api/* exemption from the offline
-        // sync era is gone along with the QR scan-checkin API — the app is
-        // standard web forms again.)
+        // CSRF is validated everywhere; the app is standard web forms.
     })
     // Must stay present even though nothing custom is configured: calling
     // withExceptions() is what registers the exception handler binding.

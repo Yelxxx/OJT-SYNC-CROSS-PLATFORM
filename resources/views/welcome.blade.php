@@ -5,6 +5,12 @@
         <meta name="viewport" content="width=device-width, initial-scale=1">
         <title>{{ config('app.name', 'OJT Sync') }}</title>
         <link rel="icon" type="image/png" href="{{ asset('images/logo.png') }}">
+        <link rel="manifest" href="/manifest.json">
+        <meta name="theme-color" content="#2E7D32">
+        <meta name="apple-mobile-web-app-capable" content="yes">
+        <meta name="apple-mobile-web-app-status-bar-style" content="default">
+        <meta name="apple-mobile-web-app-title" content="OJT Sync">
+        <link rel="apple-touch-icon" href="{{ asset('images/logo-192.png') }}">
 
         @if (file_exists(public_path('build/manifest.json')) || file_exists(public_path('hot')))
             @vite(['resources/css/app.css', 'resources/js/app.js'])

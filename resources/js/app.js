@@ -57,99 +57,6 @@ Alpine.data('loadingScreen', () => ({
 
 window.Alpine = Alpine;
 
-Alpine.data('installPrompt', () => ({
-    showInstallPrompt: false,
-    deferredPrompt: null,
-    SHOW_DELAY_MS: 1500,
-    PROMPT_COOLDOWN_MS: 7 * 24 * 60 * 60 * 1000, // ask again after one week
-    showTimer: null,
-
-    init() {
-        window.addEventListener('beforeinstallprompt', (e) => {
-            // Prevent Chrome 67 and earlier from automatically showing the prompt
-            e.preventDefault();
-
-            // Respect the user's earlier decision: after a dismissal we stay
-            // quiet for PROMPT_COOLDOWN_MS, and the OS/browser install
-            // criteria themselves gate how often beforeinstallprompt fires.
-            if (this.isDismissed()) {
-                return;
-            }
-
-            // Stash the event so it can be triggered later
-            this.deferredPrompt = e;
-
-            // Give the page a moment to settle so the popup never fights the
-            // loading screen for attention.
-            clearTimeout(this.showTimer);
-            this.showTimer = setTimeout(() => {
-                this.showInstallPrompt = true;
-            }, this.SHOW_DELAY_MS);
-        });
-
-        window.addEventListener('appinstalled', () => {
-            // Hide the app-provided install prompt
-            this.showInstallPrompt = false;
-            clearTimeout(this.showTimer);
-            // Clear the deferredPrompt so it can be garbage collected
-            this.deferredPrompt = null;
-        });
-
-        // Defensive cleanup if the component dies before the timer fires
-        this.$cleanup?.(() => clearTimeout(this.showTimer));
-    },
-
-    isDismissed() {
-        try {
-            const raw = localStorage.getItem('pwa-install-prompt');
-
-            if (! raw) {
-                return false;
-            }
-
-            const state = JSON.parse(raw);
-
-            // A dismissal older than the cooldown expires and we may ask again.
-            return Boolean(state.dismissedAt) &&
-                (Date.now() - state.dismissedAt) < this.PROMPT_COOLDOWN_MS;
-        } catch (error) {
-            return false;
-        }
-    },
-
-    dismissInstallPrompt() {
-        this.showInstallPrompt = false;
-
-        try {
-            localStorage.setItem('pwa-install-prompt', JSON.stringify({
-                dismissedAt: Date.now(),
-            }));
-        } catch (error) {
-            // Private mode / storage full: fall back to current behavior
-            // (prompt may reappear on later visits).
-        }
-    },
-
-    installPWA() {
-        // Show the prompt
-        this.showInstallPrompt = false;
-        clearTimeout(this.showTimer);
-        // Show the install prompt
-        if (this.deferredPrompt) {
-            this.deferredPrompt.prompt();
-            // Wait for the user to respond to the prompt
-            this.deferredPrompt.userChoice.then((choiceResult) => {
-                if (choiceResult.outcome === 'accepted') {
-                    console.log('User accepted the install prompt');
-                } else {
-                    console.log('User dismissed the install prompt');
-                }
-                this.deferredPrompt = null;
-            });
-        }
-    },
-}));
-
 /* ------------------------------------------------------------------ */
 /* Live shift clock (student DTR page)                                 */
 /*                                                                     */
@@ -199,17 +106,41 @@ Alpine.data('liveClock', ({ startedAt }) => ({
     },
 }));
 
-/* ------------------------------------------------------------------ */
-/* Service worker glue                                                 */
-/* ------------------------------------------------------------------ */
+Alpine.data('pwaInstallPrompt', () => ({
+    deferredPrompt: null,
+    canInstall: false,
 
+    init() {
+        window.addEventListener('beforeinstallprompt', (e) => {
+            e.preventDefault();
+            this.deferredPrompt = e;
+            this.canInstall = true;
+        });
+
+        window.addEventListener('appinstalled', () => {
+            this.canInstall = false;
+            this.deferredPrompt = null;
+        });
+    },
+
+    async installApp() {
+        if (! this.deferredPrompt) {
+            return;
+        }
+        this.deferredPrompt.prompt();
+        const { outcome } = await this.deferredPrompt.userChoice;
+        if (outcome === 'accepted') {
+            this.canInstall = false;
+        }
+        this.deferredPrompt = null;
+    },
+}));
+
+// Register online-only pass-through Service Worker for PWA installation eligibility
 if ('serviceWorker' in navigator) {
-    // Periodically ask for SW updates so installs pick up new deploys.
     window.addEventListener('load', () => {
-        navigator.serviceWorker.getRegistration().then((registration) => {
-            if (registration) {
-                setInterval(() => registration.update(), 60 * 60 * 1000);
-            }
+        navigator.serviceWorker.register('/sw.js').catch(() => {
+            // Service worker registration error ignored in environments without HTTPS/SW support
         });
     });
 }

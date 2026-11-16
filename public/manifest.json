@@ -1,0 +1,26 @@
+{
+  "name": "OJT Sync - Cavite State University",
+  "short_name": "OJT Sync",
+  "description": "On-the-Job Training Management & Practicum Portal for Cavite State University",
+  "start_url": "/dashboard",
+  "scope": "/",
+  "display": "standalone",
+  "orientation": "portrait-primary",
+  "background_color": "#FCFBF7",
+  "theme_color": "#2E7D32",
+  "icons": [
+    {
+      "src": "/images/logo-192.png",
+      "sizes": "192x192",
+      "type": "image/png",
+      "purpose": "any maskable"
+    },
+    {
+      "src": "/images/logo-512.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "any maskable"
+    }
+  ],
+  "categories": ["education", "productivity"]
+}

@@ -208,7 +208,6 @@ The project is pre-configured with a zero-cost production template (**Render Web
 
 - Blueprint file: [`render.yaml`](render.yaml)
 - Fully containerized via production-ready [`Dockerfile`](Dockerfile)
-- Progressive Web App (PWA) ready with built-in offline service worker support
 
 ---
 
